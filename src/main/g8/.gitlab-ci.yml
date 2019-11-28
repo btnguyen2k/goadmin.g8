@@ -1,0 +1,123 @@
+# Sample GitLab CI Runner configuration
+# By Thanh Nguyen <btnguyen2k@gmail.com>
+
+cache:
+  paths:
+
+variables:
+  ## These variables should be set via protected env variables
+  #DOCKER_REGISTRY_SERVER: ""
+  #DOCKER_REGISTRY_USER: ""
+  #DOCKER_REGISTRY_PASSWORD: ""
+  ## For private registry, namespace is blank normally.
+  ## For public registry (e.g. hub.docker.com), namespace is usually "/username"
+  DOCKER_REGISTRY_NAMESPACE: ""
+  ## Change GOPATH if needed
+  GOPATH: /build/go
+
+before_script:
+  # Setup http proxy if needed
+  #- "export http_proxy=http://10.100.100.1:8888"
+  #- "export https_proxy=http://10.100.100.1:8888"
+  # So that current user, directory and datetime occur in log
+  - whoami && pwd && date
+  - "export APP_ROOT=`pwd`"
+  - "echo GOPATH: $GOPATH"
+  - "echo GOROOT: $GOROOT"
+  - "echo APP_ROOT: $APP_ROOT"
+  - "export CI_PROJECT_VERSION=`echo $CI_COMMIT_REF_NAME | cut -d'-' -f 2`"
+  - "echo CI_PROJECT_VERSION: $CI_COMMIT_REF_NAME --\\> $CI_PROJECT_VERSION"
+
+after_script:
+
+stages:
+  - build
+  - test
+  - docker-build
+  - docker-release
+
+build:
+  stage: build
+  script:
+    - whoami && pwd && date
+    - cd $APP_ROOT && go build -o main
+  tags:
+    ## Define tags if needed
+    #- gitlabci-build
+    #- golang
+
+test:
+  stage: test
+  only:
+    # Run ony if commit has tag release-x.y.z.t or staging-x.y.z.t or test-x.y.z.t
+    - /^release-.*$/
+    - /^staging-.*$/
+    - /^test-.*$/
+  script:
+    - whoami && pwd && date
+    #- cd $APP_ROOT && go test -v -count=1
+  tags:
+    ## Define tags if needed
+    #- gitlabci-build
+    #- golang
+
+build docker image:
+  stage: docker-build
+  only:
+    # Run ony if commit has tag release-x.y.z.t or staging-x.y.z.t or test-x.y.z.t
+    - /^release-.*$/
+    - /^staging-.*$/
+    - /^test-.*$/
+  script:
+    - whoami && pwd && date
+    - cd $APP_ROOT && go build -o main
+    ## Remove --squash if docker's experimental features are not enabled
+    - cd $APP_ROOT && docker build --force-rm --squash -t $DOCKER_REGISTRY_SERVER/$CI_PROJECT_NAME:$CI_PROJECT_VERSION .
+    - docker rmi $(docker images -f "dangling=true" -q)
+  tags:
+    ## Define tags if needed
+    #- gitlabci-build
+    #- golang
+
+push test to docker registry:
+  stage: docker-release
+  only:
+    - /^test-.*$/
+  script:
+    - whoami && pwd && date
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_SERVER
+    - docker tag ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:$CI_PROJECT_VERSION ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:$CI_PROJECT_VERSION-test
+    - docker push ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:$CI_PROJECT_VERSION-test
+  tags:
+    ## Define tags if needed
+    #- gitlabci-build
+  when: manual
+
+push staging to docker registry:
+  stage: docker-release
+  only:
+    - /^staging-.*$/
+  script:
+    - whoami && pwd && date
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_SERVER
+    - docker tag ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:$CI_PROJECT_VERSION ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:$CI_PROJECT_VERSION-staging
+    - docker push ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:$CI_PROJECT_VERSION-staging
+  tags:
+    ## Define tags if needed
+    #- gitlabci-build
+  when: manual
+
+push release to docker registry:
+  stage: docker-release
+  only:
+    - /^release-.*$/
+  script:
+    - whoami && pwd && date
+    - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_SERVER
+    - docker tag ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:$CI_PROJECT_VERSION ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:latest
+    - docker push ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:$CI_PROJECT_VERSION
+    - docker push ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/$CI_PROJECT_NAME:latest
+  tags:
+    ## Define tags if needed
+    #- gitlabci-build
+  when: manual

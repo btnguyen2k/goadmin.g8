@@ -1,0 +1,1 @@
+src/main/g8/release.sh

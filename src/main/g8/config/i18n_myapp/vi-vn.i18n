@@ -1,0 +1,109 @@
+vi-vn {
+    text {
+        dashboard = "Trang Nhà"
+
+        error_system_001 = "Lỗi (001:%s)" # error extracting info from T62
+        error_system_002 = "Lỗi (002:%s)" # error encoding sso-data
+        error_system_003 = "Lỗi (003:%s)" # error decoding sso-data
+
+        # 0xx = other db errors
+        error_db_001 = "Lỗi database (101:%s)" # general database error
+
+        # 1xx = user account related errors
+        error_db_101 = "Lỗi database (101:%s)" # error while fetching user data from database
+        error_db_111 = "Lỗi database (111:%s)" # error while updating user data from database
+
+        # 2xx = app related errors
+        error_db_201 = "Lỗi database (201:%s)" # error while fetching app data from database
+        error_db_211 = "Lỗi database (211:%s)" # error while updating app data from database
+
+        # 3xx = group related errors
+        error_db_301 = "Lỗi database (301:%s)" # error while fetching group data from database
+        error_db_311 = "Lỗi database (311:%s)" # error while updating group data from database
+
+        # 4xx = user input related errors
+        error_form_400 = "Lỗi dữ liệu nhập (400:%s)" # error while parsing submit form
+
+        login               = "Đăng Nhập"
+        login_retry         = "Đăng Nhập Lại"
+        login_failed        = "Đăng nhập thất bại"
+        login_successful    = "Đăng nhập thành công"
+        login_successful_as = "Đăng nhập thành công với tài khoản %s"
+        logout              = "Đăng Xuất"
+        wait                = "Vui lòng chờ giây lát..."
+
+        uid = "Mã Nhân Viên"
+
+        continue = "Tiếp Tục"
+        error    = "Lỗi"
+        actions  = "Thao Tác"
+        add      = "Thêm"
+        delete   = "Xoá"
+        save     = "Lưu"
+        reset    = "Hoàn Tác"
+        ok       = "Đồng ý"
+        cancel   = "Huỷ"
+        random   = "Sinh ngẫu nhiên"
+
+        not_undoable = "Lưu ý: thao tác này tác động đến dữ liệu và không thể hồi tác!"
+
+        error_cannot_build_callback = "Không tạo được đường đẫn để quay về app [%s]"
+        error_session_invalid_or_expired = "Phiên đăng nhập hết hạn hoặc không hợp lệ [%s]"
+
+        error_no_permission = "Bạn không đủ quyền hạn thực hiện thao tác này"
+        error_empty_description = "Vui lòng nhập thông tin 'Mô tả'"
+        error_invalid_api_token = "Thông tin 'API token' không hợp lệ"
+        error_invalid_aes_key = "Thông tin 'AES key' không hợp lệ (tối thiểu 8 ký tự)"
+        error_empty_callback = "Vui lòng nhập thông tin 'Callback'"
+
+        my_apps = "Ứng dụng của tôi"
+        my_groups = "Nhóm của tôi"
+
+        active = "Active"
+        id = "ID"
+        name = "Tên hiển thị"
+        creator_id = "Người tạo"
+        group_id = "Nhóm"
+        description = "Mô tả"
+        timestamp_created = "Tạo lúc"
+        timestamp_updated = "Cập nhật lúc"
+
+        app_api_token = "API Token"
+        app_aes_key = "AES Key"
+        app_callback = "Callback"
+
+        create_edit_group = "Tạo/Cập nhật nhóm"
+        error_group_not_found = "Nhóm [%s] không tồn tại"
+
+        create_group = "Tạo Nhóm"
+        create_group_successful = "Nhóm [%s] đã được tạo thành công"
+        edit_group = "Cập Nhật Thông Tin Nhóm"
+        edit_group_successful = "Thông tin nhóm [%s] đã được cập nhật thành công"
+        delete_group = "Xoá Nhóm"
+        delete_group_confirm = "Bạn có chắc rằng bạn muốn xoá nhóm [%s]?"
+        delete_group_successful = "Nhóm [%s] đã được xoá thành công"
+
+        group_users    = "Thành viên trong nhóm"
+        users_of_group = "Thành viên trong nhóm [%s]"
+
+        error_user_not_found = "Người dùng [%s] không tồn tại"
+
+        remove_user_from_group = "Gỡ thành viên"
+        remove_user_from_group_confirm = "Bạn có chắc rằng bạn muốn gỡ thành viên [%s] ra khỏi nhóm?"
+        remove_user_from_group_successful = "Thành viên [%s] đã được gỡ khỏi nhóm"
+
+        create_edit_app = "Tạo/Cập nhật ứng dụng"
+        error_app_not_found = "Ứng dụng [%s] không tồn tại"
+        error_app_existed = "Ứng dụng [%s] đã tồn tại"
+        error_app_invalid_config = "Ứng dụng [%s] chưa được cấu hình đúng"
+        error_app_inactive = "Ứng dụng [%s] đang ở trạng thái 'inactive'"
+
+        create_app = "Tạo Ứng Dụng"
+        create_app_successful = "Ứng dụng [%s] đã được tạo thành công"
+        edit_app = "Cập Nhật Thông Tin Ứng Dụng"
+        edit_app_successful = "Thông tin ứng dụng [%s] đã được cập nhật thành công"
+        delete_app = "Xoá Ứng Dụng"
+        delete_app_confirm = "Bạn có chắc rằng bạn muốn xoá ứng dụng [%s]?"
+        delete_app_successful = "Ứng dụng [%s] đã được xoá thành công"
+    }
+}
