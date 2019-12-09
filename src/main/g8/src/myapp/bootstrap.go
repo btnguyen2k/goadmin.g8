@@ -4,11 +4,13 @@ Package myapp contains application's source code.
 package myapp
 
 import (
+	"github.com/btnguyen2k/consu/reddo"
+	"github.com/btnguyen2k/prom"
 	"github.com/go-akka/configuration"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	"html/template"
 	"io"
+	"log"
 	"main/src/goadmin"
 	"main/src/i18n"
 	"net/http"
@@ -25,11 +27,21 @@ var (
 	cdnMode      = false
 	myStaticPath = "/static"
 	myI18n       *i18n.I18n
+	sqlc         *prom.SqlConnect
+	groupDao     GroupDao
+	userDao      UserDao
 )
 
 const (
-	namespace      = "myapp"
-	actionNameHome = "home"
+	namespace = "myapp"
+
+	sessionMyUid = "uid"
+
+	actionNameHome          = "home"
+	actionNameCpLogin       = "cp_login"
+	actionNameCpLoginSubmit = "cp_login_submit"
+	actionNameCpLogout      = "cp_logout"
+	actionNameCpDashboard   = "cp_dashboard"
 )
 
 /*
@@ -41,16 +53,49 @@ Bootstrapper usually does:
 */
 func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) error {
 	cdnMode = conf.GetBoolean(goadmin.ConfKeyCdnMode, false)
+
 	myStaticPath = "/static_v" + conf.GetString("app.version", "")
 	e.Static(myStaticPath, "public")
+
 	myI18n = i18n.NewI18n("./config/i18n_" + namespace)
+
+	initDaos()
 
 	// register a custom namespace-scope template renderer
 	goadmin.EchoRegisterRenderer(namespace, newTemplateRenderer("./views/myapp", ".html"))
 
 	e.GET("/", actionHome).Name = actionNameHome
 
+	e.GET("/cp/login", actionCpLogin).Name = actionNameCpLogin
+	// e.POST("/cp/login", actionCpLoginSubmit).Name = actionNameCpLogin
+	// e.GET("/cp/logout", actionCpLogout).Name = actionNameCpLogout
+	e.GET("/cp", actionCpDashboard, middlewareRequiredAuth).Name = actionNameCpDashboard
+
 	return nil
+}
+
+func initDaos() {
+	sqlc = newSqliteConnection("./data/sqlite", namespace)
+	sqliteInitTableGroup(sqlc, tableGroup)
+	sqliteInitTableUser(sqlc, tableUser)
+
+	groupDao = newGroupDaoSqlite(sqlc, tableGroup)
+	systemGroup, err := groupDao.Get(SystemGroupId)
+	if err != nil {
+		panic("error while getting group [" + SystemGroupId + "]: " + err.Error())
+	}
+	if systemGroup == nil {
+		log.Printf("System group [%s] not found, creating one...", SystemGroupId)
+		result, err := groupDao.Create(SystemGroupId, "System User Group")
+		if err != nil {
+			panic("error while creating group [" + SystemGroupId + "]: " + err.Error())
+		}
+		if !result {
+			log.Printf("Cannot create group [%s]", SystemGroupId)
+		}
+	}
+
+	userDao = newUserDaoSqlite(sqlc, tableUser)
 }
 
 /*----------------------------------------------------------------------*/
@@ -81,9 +126,9 @@ func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.C
 		data = make(map[string]interface{})
 	}
 
-	// sess := getSession(c)
-	// flash := sess.Flashes()
-	// sess.Save(c.Request(), c.Response())
+	sess := getSession(c)
+	flash := sess.Flashes()
+	sess.Save(c.Request(), c.Response())
 
 	// add global data/methods if data is a map
 	if viewContext, isMap := data.(map[string]interface{}); isMap {
@@ -92,13 +137,13 @@ func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.C
 		viewContext["i18n"] = myI18n
 		viewContext["reverse"] = c.Echo().Reverse
 		viewContext["appInfo"] = goadmin.AppConfig.GetConfig("app")
-		// if len(flash) > 0 {
-		// 	viewContext["flash"] = flash[0].(string)
-		// }
-		// uid := c.Get(sessionMyUid)
-		// if uid != nil {
-		// 	viewContext["uid"] = uid
-		// }
+		if len(flash) > 0 {
+			viewContext["flash"] = flash[0].(string)
+		}
+		uid := c.Get(sessionMyUid)
+		if uid != nil {
+			viewContext["uid"] = uid
+		}
 	}
 
 	tpl := r.templates[name]
@@ -115,11 +160,69 @@ func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.C
 }
 
 /*----------------------------------------------------------------------*/
+// authentication middleware
+func middlewareRequiredAuth(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		sess := getSession(c)
+
+		uid, has := sess.Values[sessionMyUid]
+		if has {
+			uid, _ = reddo.ToString(uid)
+		}
+		if uid == nil || uid == "" {
+			return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpLogin))
+		}
+
+		// ssoToken, has := sess.Values[sessionMySsoToken]
+		// if has {
+		// 	ssoToken, _ = reddo.ToString(ssoToken)
+		// }
+		// if ssoToken == nil || ssoToken == "" {
+		// 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpLogin))
+		// }
+		//
+		// if now := time.Now(); now.Unix()-lastSessionCheck.Unix() > 5*60 {
+		// 	// do not verify sso-token so often, 5 mins sleep should be ok
+		// 	lastSessionCheck = now
+		//
+		// 	app, err := model.LoadBoApp(SystemAppId)
+		// 	if err != nil {
+		// 		return c.String(http.StatusOK, I18n.Text("error_db_201", SystemAppId+"/"+err.Error()))
+		// 	}
+		// 	if app == nil {
+		// 		return c.String(http.StatusOK, I18n.Text("error_app_not_found", SystemAppId))
+		// 	}
+		// 	if !app.IsConfigOk() {
+		// 		return c.String(http.StatusOK, I18n.Text("error_app_invalid_config", SystemAppId))
+		// 	}
+		// 	if !app.IsActive() {
+		// 		return c.String(http.StatusForbidden, I18n.Text("error_app_inactive", SystemAppId))
+		// 	}
+		//
+		// 	ssoData, err := DecodeSsoData(app, ssoToken.(string))
+		// 	if err != nil {
+		// 		return renderGhnSsoCallbackForm(c, app, "", err.Error(), c.Echo().Reverse(actionNameCpLogin)+"?r="+util.RandomString(8))
+		// 	}
+		// 	if !ssoData.IsValid() || ssoData.IsExpired() {
+		// 		return renderGhnSsoCallbackForm(c, app, "", I18n.Text("error_session_invalid_or_expired", ssoData.SsoId), c.Echo().Reverse(actionNameCpLogin)+"?r="+util.RandomString(8))
+		// 	}
+		// }
+		//
+		// c.Set(sessionMyUid, uid)
+		return next(c)
+	}
+}
 
 func actionHome(c echo.Context) error {
-	err := c.Render(http.StatusOK, namespace+":landing", nil)
-	if err != nil {
-		log.Error(err)
-	}
-	return err
+	return c.Render(http.StatusOK, namespace+":landing", nil)
+}
+
+func actionCpLogin(c echo.Context) error {
+	return c.Render(http.StatusOK, namespace+":login", nil)
+}
+
+func actionCpDashboard(c echo.Context) error {
+	return c.Render(http.StatusOK, namespace+":layout:cp_dashboard", map[string]interface{}{
+		"active": "dashboard",
+	})
 }

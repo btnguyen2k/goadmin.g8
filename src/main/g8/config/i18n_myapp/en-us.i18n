@@ -1,5 +1,10 @@
 en-us {
     text {
         dashboard = "Dashboard"
+        remember  = "Remember Login"
+        signin    = "Sign In"
+        signout   = "Sign Out"
+        username  = "Username"
+        password  = "Password"
     }
 }

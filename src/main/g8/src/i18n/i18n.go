@@ -19,6 +19,9 @@ import (
 const defaultLocale = "en-us"
 
 func NewI18n(dir string) *I18n {
+	if !strings.HasSuffix(dir, "/") {
+		dir += "/"
+	}
 	log.Printf("Loading i18n files from directory [%s]", dir)
 
 	textFromAllFiles := make([]string, 0)
