@@ -1,7 +1,8 @@
 package myapp
 
 const (
-	SystemGroupId = "system"
+	SystemGroupId      = "system"
+	AdminUserUsernname = "admin"
 )
 
 const (
@@ -38,4 +39,6 @@ type User struct {
 
 // UserDao defines API to access user account storage
 type UserDao interface {
+	Create(username, encryptedPassword, name, groupId string) (bool, error)
+	Get(username string) (*User, error)
 }

@@ -1,10 +1,22 @@
 en-us {
     text {
-        dashboard = "Dashboard"
-        remember  = "Remember Login"
-        signin    = "Sign In"
-        signout   = "Sign Out"
-        username  = "Username"
-        password  = "Password"
+        # 4xx = user input related errors
+        error_form_400 = "Error parsing form data (400:%s)" # error while parsing submit form
+
+        # 0xx = other db errors
+        error_db_001 = "General database error (001:%s)" # general database error
+
+        dashboard  = "Dashboard"
+        remember   = "Remember Login"
+        signin     = "Sign In"
+        signin_msg = "Sign in to start your session"
+        signout    = "Sign Out"
+        username   = "Username"
+        password   = "Password"
+
+        error_user_not_found  = "User [%s] does not exist"
+        error_group_not_found = "Group [%s] does not exist"
+
+        error_login_failed = "Login failed: password does not match"
     }
 }

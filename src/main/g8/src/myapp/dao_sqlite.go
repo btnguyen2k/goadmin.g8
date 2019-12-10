@@ -74,6 +74,54 @@ type UserDaoSqlite struct {
 	tableName string
 }
 
+// it is recommended to have a function that transforms godal.IGenericBo to business object and vice versa.
+func (dao *UserDaoSqlite) toBo(gbo godal.IGenericBo) *User {
+	if gbo == nil {
+		return nil
+	}
+	bo := &User{
+		Username: gbo.GboGetAttrUnsafe(fieldUserUsername, reddo.TypeString).(string),
+		Password: gbo.GboGetAttrUnsafe(fieldUserPassword, reddo.TypeString).(string),
+		Name:     gbo.GboGetAttrUnsafe(fieldUserName, reddo.TypeString).(string),
+		GroupId:  gbo.GboGetAttrUnsafe(fieldUserGroupId, reddo.TypeString).(string),
+	}
+	return bo
+}
+
+// it is recommended to have a function that transforms godal.IGenericBo to business object and vice versa.
+func (dao *UserDaoSqlite) toGbo(bo *User) godal.IGenericBo {
+	if bo == nil {
+		return nil
+	}
+	gbo := godal.NewGenericBo()
+	gbo.GboSetAttr(fieldUserUsername, bo.Username)
+	gbo.GboSetAttr(fieldUserPassword, bo.Password)
+	gbo.GboSetAttr(fieldUserName, bo.Name)
+	gbo.GboSetAttr(fieldUserGroupId, bo.GroupId)
+	return gbo
+}
+
+// Get implements UserDao.Create
+func (dao *UserDaoSqlite) Create(username, encryptedPassword, name, groupId string) (bool, error) {
+	bo := &User{
+		Username: strings.ToLower(strings.TrimSpace(username)),
+		Password: strings.TrimSpace(encryptedPassword),
+		Name:     strings.TrimSpace(name),
+		GroupId:  strings.ToLower(strings.TrimSpace(groupId)),
+	}
+	numRows, err := dao.GdaoCreate(dao.tableName, dao.toGbo(bo))
+	return numRows > 0, err
+}
+
+// Get implements GroupDao.Get
+func (dao *UserDaoSqlite) Get(username string) (*User, error) {
+	gbo, err := dao.GdaoFetchOne(dao.tableName, map[string]interface{}{colUserUsername: username})
+	if err != nil {
+		return nil, err
+	}
+	return dao.toBo(gbo), nil
+}
+
 /*----------------------------------------------------------------------*/
 
 func newGroupDaoSqlite(sqlc *prom.SqlConnect, tableName string) GroupDao {

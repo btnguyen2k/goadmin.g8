@@ -31,11 +31,14 @@
     </div>
     <div class="card">
         <div class="card-body login-card-body">
-            <p class="login-box-msg">{{.i18n.Text "signin"}}</p>
+            <p class="login-box-msg">{{.i18n.Text "signin_msg"}}</p>
+            {{if .error}}
+                <p class="alert alert-danger" role="alert">{{.error}}</p>
+            {{end}}
 
             <form action="{{call .reverse "cp_login_submit"}}" method="post">
                 <div class="input-group mb-3">
-                    <input type="text" name="username" class="form-control" placeholder="{{.i18n.Text "username"}}">
+                    <input type="text" name="username" class="form-control" placeholder="{{.i18n.Text "username"}}" value="{{.form.Get "username"}}">
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-user"></span>

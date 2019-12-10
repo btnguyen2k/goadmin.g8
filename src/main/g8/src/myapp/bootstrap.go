@@ -67,7 +67,7 @@ func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) err
 	e.GET("/", actionHome).Name = actionNameHome
 
 	e.GET("/cp/login", actionCpLogin).Name = actionNameCpLogin
-	// e.POST("/cp/login", actionCpLoginSubmit).Name = actionNameCpLogin
+	e.POST("/cp/login", actionCpLoginSubmit).Name = actionNameCpLoginSubmit
 	// e.GET("/cp/logout", actionCpLogout).Name = actionNameCpLogout
 	e.GET("/cp", actionCpDashboard, middlewareRequiredAuth).Name = actionNameCpDashboard
 
@@ -96,6 +96,21 @@ func initDaos() {
 	}
 
 	userDao = newUserDaoSqlite(sqlc, tableUser)
+	adminUser, err := userDao.Get(AdminUserUsernname)
+	if err != nil {
+		panic("error while getting user [" + AdminUserUsernname + "]: " + err.Error())
+	}
+	if adminUser == nil {
+		pwd := "s3cr3t"
+		log.Printf("Admin user [%s] not found, creating one with password [%s]...", AdminUserUsernname, pwd)
+		result, err := userDao.Create(AdminUserUsernname, encryptPassword(AdminUserUsernname, pwd), AdminUserUsernname, SystemGroupId)
+		if err != nil {
+			panic("error while creating user [" + AdminUserUsernname + "]: " + err.Error())
+		}
+		if !result {
+			log.Printf("Cannot create user [%s]", AdminUserUsernname)
+		}
+	}
 }
 
 /*----------------------------------------------------------------------*/
@@ -219,6 +234,47 @@ func actionHome(c echo.Context) error {
 
 func actionCpLogin(c echo.Context) error {
 	return c.Render(http.StatusOK, namespace+":login", nil)
+}
+
+func actionCpLoginSubmit(c echo.Context) error {
+	const (
+		formFieldUsername = "username"
+		formFieldPassword = "password"
+	)
+	var username, password, encPassword string
+	var user *User
+	var errMsg string
+	var err error
+	formData, err := c.FormParams()
+	if err != nil {
+		errMsg = myI18n.Text("error_form_400", err.Error())
+		goto end
+	}
+	username = formData.Get(formFieldUsername)
+	user, err = userDao.Get(username)
+	if err != nil {
+		errMsg = myI18n.Text("error_db_001", err.Error())
+		goto end
+	}
+	if user == nil {
+		errMsg = myI18n.Text("error_user_not_found", username)
+		goto end
+	}
+	password = formData.Get(formFieldPassword)
+	encPassword = encryptPassword(user.Username, password)
+	if encPassword != user.Password {
+		errMsg = myI18n.Text("error_login_failed")
+		goto end
+	}
+
+	// login successful
+	setSessionValue(c, sessionMyUid, user.Username)
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpDashboard))
+end:
+	return c.Render(http.StatusOK, namespace+":login", map[string]interface{}{
+		"form":  formData,
+		"error": errMsg,
+	})
 }
 
 func actionCpDashboard(c echo.Context) error {
