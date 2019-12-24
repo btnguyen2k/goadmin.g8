@@ -35,13 +35,28 @@ var (
 const (
 	namespace = "myapp"
 
-	sessionMyUid = "uid"
+	ctxCurrentUser = "usr"
+	sessionMyUid   = "uid"
 
 	actionNameHome          = "home"
 	actionNameCpLogin       = "cp_login"
 	actionNameCpLoginSubmit = "cp_login_submit"
 	actionNameCpLogout      = "cp_logout"
 	actionNameCpDashboard   = "cp_dashboard"
+
+	actionNameCpCreateGroup       = "cp_create_group"
+	actionNameCpCreateGroupSubmit = "cp_create_group_submit"
+	actionNameCpEditGroup         = "cp_edit_group"
+	actionNameCpEditGroupSubmit   = "cp_edit_group_submit"
+	actionNameCpDeleteGroup       = "cp_delete_group"
+	actionNameCpDeleteGroupSubmit = "cp_delete_group_submit"
+
+	actionNameCpCreateUser       = "cp_create_user"
+	actionNameCpCreateUserSubmit = "cp_create_user_submit"
+	actionNameCpEditUser         = "cp_edit_user"
+	actionNameCpEditUserSubmit   = "cp_edit_user_submit"
+	actionNameCpDeleteUser       = "cp_delete_user"
+	actionNameCpDeleteUserSubmit = "cp_delete_user_submit"
 )
 
 /*
@@ -70,6 +85,13 @@ func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) err
 	e.POST("/cp/login", actionCpLoginSubmit).Name = actionNameCpLoginSubmit
 	// e.GET("/cp/logout", actionCpLogout).Name = actionNameCpLogout
 	e.GET("/cp", actionCpDashboard, middlewareRequiredAuth).Name = actionNameCpDashboard
+
+	e.GET("/cp/createGroup", actionCpCreateGroup).Name = actionNameCpCreateGroup
+	e.POST("/cp/createGroup", actionCpCreateGroupSubmit).Name = actionNameCpCreateGroupSubmit
+	e.GET("/cp/editGroup", actionCpEditGroup).Name = actionNameCpEditGroup
+	e.POST("/cp/editGroup", actionCpEditGroupSubmit).Name = actionNameCpEditGroupSubmit
+	e.GET("/cp/deleteGroup", actionCpDeleteGroup).Name = actionNameCpDeleteGroup
+	e.POST("/cp/deleteGroup", actionCpDeleteGroupSubmit).Name = actionNameCpDeleteGroupSubmit
 
 	return nil
 }
@@ -155,9 +177,15 @@ func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.C
 		if len(flash) > 0 {
 			viewContext["flash"] = flash[0].(string)
 		}
-		uid := c.Get(sessionMyUid)
-		if uid != nil {
-			viewContext["uid"] = uid
+		u := c.Get(ctxCurrentUser)
+		if u != nil {
+			switch u.(type) {
+			case User:
+				usr := u.(User)
+				viewContext["user"] = toUserModel(c, &usr)
+			case *User:
+				viewContext["user"] = toUserModel(c, u.(*User))
+			}
 		}
 	}
 
@@ -171,6 +199,7 @@ func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.C
 		tpl = template.Must(template.New(name).ParseFiles(files...))
 		r.templates[name] = tpl
 	}
+	// first template-name should be "master" template, and its name is prefixed with ".html"
 	return tpl.ExecuteTemplate(w, tokens[0]+".html", data)
 }
 
@@ -180,11 +209,19 @@ func middlewareRequiredAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		sess := getSession(c)
 
-		uid, has := sess.Values[sessionMyUid]
-		if has {
+		var currentUser *User = nil
+		var err error
+		if uid, has := sess.Values[sessionMyUid]; has {
 			uid, _ = reddo.ToString(uid)
+			if uid != nil {
+				username := uid.(string)
+				currentUser, err = userDao.Get(username)
+				if err != nil {
+					log.Printf("error while fetching user [%s]: %s", username, err.Error())
+				}
+			}
 		}
-		if uid == nil || uid == "" {
+		if currentUser == nil {
 			return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpLogin))
 		}
 
@@ -223,7 +260,7 @@ func middlewareRequiredAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		// 	}
 		// }
 		//
-		// c.Set(sessionMyUid, uid)
+		c.Set(ctxCurrentUser, currentUser)
 		return next(c)
 	}
 }
@@ -279,6 +316,32 @@ end:
 
 func actionCpDashboard(c echo.Context) error {
 	return c.Render(http.StatusOK, namespace+":layout:cp_dashboard", map[string]interface{}{
-		"active": "dashboard",
+		"active":   "dashboard",
+		"osUtils":  &OsUtils{},
+		"appUtils": &MyAppUtils{c: c},
 	})
+}
+
+func actionCpCreateGroup(c echo.Context) error {
+	return c.HTML(http.StatusOK, "actionCpCreateGroup")
+}
+
+func actionCpCreateGroupSubmit(c echo.Context) error {
+	return c.HTML(http.StatusOK, "actionCpCreateGroupSubmit")
+}
+
+func actionCpEditGroup(c echo.Context) error {
+	return c.HTML(http.StatusOK, "actionCpEditGroup")
+}
+
+func actionCpEditGroupSubmit(c echo.Context) error {
+	return c.HTML(http.StatusOK, "actionCpEditGroupSubmit")
+}
+
+func actionCpDeleteGroup(c echo.Context) error {
+	return c.HTML(http.StatusOK, "actionCpDeleteGroup")
+}
+
+func actionCpDeleteGroupSubmit(c echo.Context) error {
+	return c.HTML(http.StatusOK, "actionCpDeleteGroupSubmit")
 }

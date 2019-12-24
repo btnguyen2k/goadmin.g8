@@ -113,13 +113,32 @@ func (dao *UserDaoSqlite) Create(username, encryptedPassword, name, groupId stri
 	return numRows > 0, err
 }
 
-// Get implements GroupDao.Get
+// Get implements UserDao.Get
 func (dao *UserDaoSqlite) Get(username string) (*User, error) {
 	gbo, err := dao.GdaoFetchOne(dao.tableName, map[string]interface{}{colUserUsername: username})
 	if err != nil {
 		return nil, err
 	}
 	return dao.toBo(gbo), nil
+}
+
+// GetN implements UserDao.GetN
+func (dao *UserDaoSqlite) GetN(fromOffset, maxNumRows int) ([]*User, error) {
+	gboList, err := dao.GdaoFetchMany(dao.tableName, nil, nil, fromOffset, maxNumRows)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*User, 0)
+	for _, gbo := range gboList {
+		bo := dao.toBo(gbo)
+		result = append(result, bo)
+	}
+	return result, nil
+}
+
+// GetAll implements UserDao.GetAll
+func (dao *UserDaoSqlite) GetAll() ([]*User, error) {
+	return dao.GetN(0, 0)
 }
 
 /*----------------------------------------------------------------------*/
@@ -193,4 +212,23 @@ func (dao *GroupDaoSqlite) Get(id string) (*Group, error) {
 		return nil, err
 	}
 	return dao.toBo(gbo), nil
+}
+
+// GetN implements GroupDao.GetN
+func (dao *GroupDaoSqlite) GetN(fromOffset, maxNumRows int) ([]*Group, error) {
+	gboList, err := dao.GdaoFetchMany(dao.tableName, nil, nil, fromOffset, maxNumRows)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]*Group, 0)
+	for _, gbo := range gboList {
+		bo := dao.toBo(gbo)
+		result = append(result, bo)
+	}
+	return result, nil
+}
+
+// GetAll implements GroupDao.GetAll
+func (dao *GroupDaoSqlite) GetAll() ([]*Group, error) {
+	return dao.GetN(0, 0)
 }

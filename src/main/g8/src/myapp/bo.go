@@ -20,6 +20,8 @@ type Group struct {
 type GroupDao interface {
 	Create(id, name string) (bool, error)
 	Get(id string) (*Group, error)
+	GetN(fromOffset, maxNumRows int) ([]*Group, error)
+	GetAll() ([]*Group, error)
 }
 
 const (
@@ -41,4 +43,6 @@ type User struct {
 type UserDao interface {
 	Create(username, encryptedPassword, name, groupId string) (bool, error)
 	Get(username string) (*User, error)
+	GetN(fromOffset, maxNumRows int) ([]*User, error)
+	GetAll() ([]*User, error)
 }

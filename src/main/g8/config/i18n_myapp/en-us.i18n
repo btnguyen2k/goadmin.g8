@@ -6,13 +6,35 @@ en-us {
         # 0xx = other db errors
         error_db_001 = "General database error (001:%s)" # general database error
 
-        dashboard  = "Dashboard"
-        remember   = "Remember Login"
-        signin     = "Sign In"
-        signin_msg = "Sign in to start your session"
-        signout    = "Sign Out"
-        username   = "Username"
-        password   = "Password"
+        home       = Home
+        dashboard  = Dashboard
+
+        remember_login = "Remember Login"
+        signin         = "Sign In"
+        signin_msg     = "Sign in to start your session"
+        signout        = "Sign Out"
+        username       = "Username"
+        password       = "Password"
+
+        users   = Users
+        user    = User
+        groups  = Groups
+        group   = Group
+        contact = Contact
+        search  = Search
+        action  = Action
+        actions = Actions
+        edit    = Edit
+        delete  = Delete
+
+        group_id   = Id
+        group_name = Name
+        create_group = "Create Group"
+
+        user_username = Username
+        user_name     = Name
+        user_group    = Group
+        create_user   = "Create User"
 
         error_user_not_found  = "User [%s] does not exist"
         error_group_not_found = "Group [%s] does not exist"
