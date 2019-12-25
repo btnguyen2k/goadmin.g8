@@ -3,6 +3,7 @@ package myapp
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"github.com/btnguyen2k/consu/reddo"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -10,6 +11,7 @@ import (
 	"github.com/shirou/gopsutil/mem"
 	"log"
 	"math"
+	"math/rand"
 	"runtime"
 	"strings"
 )
@@ -29,10 +31,41 @@ func setSessionValue(c echo.Context, key string, value interface{}) {
 	sess.Save(c.Request(), c.Response())
 }
 
+func addFlashMsg(c echo.Context, msg string) {
+	sess := getSession(c)
+	sess.AddFlash(msg)
+	sess.Save(c.Request(), c.Response())
+}
+
 func encryptPassword(username, rawPassword string) string {
 	saltAndPwd := username + "." + rawPassword
 	out := sha1.Sum([]byte(saltAndPwd))
 	return strings.ToLower(hex.EncodeToString(out[:]))
+}
+
+func getCurrentUser(c echo.Context) (*User, error) {
+	sess := getSession(c)
+	if uid, has := sess.Values[sessionMyUid]; has {
+		uid, _ = reddo.ToString(uid)
+		if uid != nil {
+			username := uid.(string)
+			return userDao.Get(username)
+		}
+	}
+	return nil, nil
+}
+
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+/*
+randomString generates a random string with specified length.
+*/
+func randomString(l int) string {
+	b := make([]byte, l)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
 }
 
 /*----------------------------------------------------------------------*/
