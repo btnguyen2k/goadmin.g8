@@ -6,6 +6,8 @@ en-us {
         # 0xx = other db errors
         error_db_001 = "General database error (001:%s)" # general database error
 
+        error_no_permission = "You do not have permission to perform this action"
+
         home       = Home
         dashboard  = Dashboard
 
@@ -24,12 +26,19 @@ en-us {
         search  = Search
         action  = Action
         actions = Actions
+        save    = Save
+        ok      = Ok
+        cancel  = Cancel
+        reset   = Reset
         edit    = Edit
         delete  = Delete
 
         group_id   = Id
         group_name = Name
         create_group = "Create Group"
+        create_group_successful = "Group [%s] has been created successfully"
+        error_empty_group_id = "Group id must not be empty"
+        error_group_existed = "Group [%s] already existed"
 
         user_username = Username
         user_name     = Name

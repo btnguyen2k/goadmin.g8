@@ -14,6 +14,7 @@ import (
 	"main/src/goadmin"
 	"main/src/i18n"
 	"net/http"
+	"net/url"
 	"reflect"
 	"strings"
 )
@@ -44,6 +45,7 @@ const (
 	actionNameCpLogout      = "cp_logout"
 	actionNameCpDashboard   = "cp_dashboard"
 
+	actionNameCpGroups            = "cp_groups"
 	actionNameCpCreateGroup       = "cp_create_group"
 	actionNameCpCreateGroupSubmit = "cp_create_group_submit"
 	actionNameCpEditGroup         = "cp_edit_group"
@@ -51,6 +53,7 @@ const (
 	actionNameCpDeleteGroup       = "cp_delete_group"
 	actionNameCpDeleteGroupSubmit = "cp_delete_group_submit"
 
+	actionNameCpUsers            = "cp_users"
 	actionNameCpCreateUser       = "cp_create_user"
 	actionNameCpCreateUserSubmit = "cp_create_user_submit"
 	actionNameCpEditUser         = "cp_edit_user"
@@ -86,12 +89,13 @@ func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) err
 	// e.GET("/cp/logout", actionCpLogout).Name = actionNameCpLogout
 	e.GET("/cp", actionCpDashboard, middlewareRequiredAuth).Name = actionNameCpDashboard
 
-	e.GET("/cp/createGroup", actionCpCreateGroup).Name = actionNameCpCreateGroup
-	e.POST("/cp/createGroup", actionCpCreateGroupSubmit).Name = actionNameCpCreateGroupSubmit
-	e.GET("/cp/editGroup", actionCpEditGroup).Name = actionNameCpEditGroup
-	e.POST("/cp/editGroup", actionCpEditGroupSubmit).Name = actionNameCpEditGroupSubmit
-	e.GET("/cp/deleteGroup", actionCpDeleteGroup).Name = actionNameCpDeleteGroup
-	e.POST("/cp/deleteGroup", actionCpDeleteGroupSubmit).Name = actionNameCpDeleteGroupSubmit
+	e.GET("/cp/groups", actionCpGroupList, middlewareRequiredAuth).Name = actionNameCpGroups
+	e.GET("/cp/createGroup", actionCpCreateGroup, middlewareRequiredAuth).Name = actionNameCpCreateGroup
+	e.POST("/cp/createGroup", actionCpCreateGroupSubmit, middlewareRequiredAuth).Name = actionNameCpCreateGroupSubmit
+	e.GET("/cp/editGroup", actionCpEditGroup, middlewareRequiredAuth).Name = actionNameCpEditGroup
+	e.POST("/cp/editGroup", actionCpEditGroupSubmit, middlewareRequiredAuth).Name = actionNameCpEditGroupSubmit
+	e.GET("/cp/deleteGroup", actionCpDeleteGroup, middlewareRequiredAuth).Name = actionNameCpDeleteGroup
+	e.POST("/cp/deleteGroup", actionCpDeleteGroupSubmit, middlewareRequiredAuth).Name = actionNameCpDeleteGroupSubmit
 
 	return nil
 }
@@ -208,7 +212,6 @@ func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.C
 func middlewareRequiredAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		sess := getSession(c)
-
 		var currentUser *User = nil
 		var err error
 		if uid, has := sess.Values[sessionMyUid]; has {
@@ -224,42 +227,6 @@ func middlewareRequiredAuth(next echo.HandlerFunc) echo.HandlerFunc {
 		if currentUser == nil {
 			return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpLogin))
 		}
-
-		// ssoToken, has := sess.Values[sessionMySsoToken]
-		// if has {
-		// 	ssoToken, _ = reddo.ToString(ssoToken)
-		// }
-		// if ssoToken == nil || ssoToken == "" {
-		// 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpLogin))
-		// }
-		//
-		// if now := time.Now(); now.Unix()-lastSessionCheck.Unix() > 5*60 {
-		// 	// do not verify sso-token so often, 5 mins sleep should be ok
-		// 	lastSessionCheck = now
-		//
-		// 	app, err := model.LoadBoApp(SystemAppId)
-		// 	if err != nil {
-		// 		return c.String(http.StatusOK, I18n.Text("error_db_201", SystemAppId+"/"+err.Error()))
-		// 	}
-		// 	if app == nil {
-		// 		return c.String(http.StatusOK, I18n.Text("error_app_not_found", SystemAppId))
-		// 	}
-		// 	if !app.IsConfigOk() {
-		// 		return c.String(http.StatusOK, I18n.Text("error_app_invalid_config", SystemAppId))
-		// 	}
-		// 	if !app.IsActive() {
-		// 		return c.String(http.StatusForbidden, I18n.Text("error_app_inactive", SystemAppId))
-		// 	}
-		//
-		// 	ssoData, err := DecodeSsoData(app, ssoToken.(string))
-		// 	if err != nil {
-		// 		return renderGhnSsoCallbackForm(c, app, "", err.Error(), c.Echo().Reverse(actionNameCpLogin)+"?r="+util.RandomString(8))
-		// 	}
-		// 	if !ssoData.IsValid() || ssoData.IsExpired() {
-		// 		return renderGhnSsoCallbackForm(c, app, "", I18n.Text("error_session_invalid_or_expired", ssoData.SsoId), c.Echo().Reverse(actionNameCpLogin)+"?r="+util.RandomString(8))
-		// 	}
-		// }
-		//
 		c.Set(ctxCurrentUser, currentUser)
 		return next(c)
 	}
@@ -322,12 +289,75 @@ func actionCpDashboard(c echo.Context) error {
 	})
 }
 
+func actionCpGroupList(c echo.Context) error {
+	u := &MyAppUtils{c: c}
+	return c.Render(http.StatusOK, namespace+":layout:cp_groups", map[string]interface{}{
+		"active":     "groups",
+		"userGroups": u.AllUserGroups(),
+	})
+}
+
 func actionCpCreateGroup(c echo.Context) error {
-	return c.HTML(http.StatusOK, "actionCpCreateGroup")
+	formData, _ := c.FormParams()
+	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
+		"active": "groups",
+		"form":   formData,
+	})
 }
 
 func actionCpCreateGroupSubmit(c echo.Context) error {
-	return c.HTML(http.StatusOK, "actionCpCreateGroupSubmit")
+	var errMsg string
+	var currentUser *User
+	var err error
+	var formData url.Values
+	var existingGroup, group *Group
+
+	currentUser, err = getCurrentUser(c)
+	if err != nil {
+		errMsg = myI18n.Text("error_db_101", "current/"+err.Error())
+		goto end
+	}
+	if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		errMsg = myI18n.Text("error_no_permission")
+		goto end
+	}
+
+	formData, err = c.FormParams()
+	if err != nil {
+		errMsg = myI18n.Text("error_form_400", err.Error())
+		goto end
+	}
+
+	group = &Group{
+		Id:   strings.ToLower(strings.TrimSpace(formData.Get("id"))),
+		Name: strings.TrimSpace(formData.Get("name")),
+	}
+	if group.Id == "" {
+		errMsg = myI18n.Text("error_empty_group_id")
+		goto end
+	}
+	existingGroup, err = groupDao.Get(group.Id)
+	if err != nil {
+		errMsg = myI18n.Text("error_db_101", group.Id+"/"+err.Error())
+		goto end
+	}
+	if existingGroup != nil {
+		errMsg = myI18n.Text("error_group_existed", group.Id)
+		goto end
+	}
+	_, err = groupDao.Create(group.Id, group.Name)
+	if err != nil {
+		errMsg = myI18n.Text("error_db_101", group.Id+"/"+err.Error())
+		goto end
+	}
+	addFlashMsg(c, myI18n.Text("create_group_successful", group.Id))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(8))
+end:
+	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
+		"active": "groups",
+		"form":   formData,
+		"error":  errMsg,
+	})
 }
 
 func actionCpEditGroup(c echo.Context) error {
