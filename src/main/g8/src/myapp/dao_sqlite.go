@@ -200,6 +200,12 @@ func (dao *GroupDaoSqlite) toGbo(bo *Group) godal.IGenericBo {
 	return gbo
 }
 
+// Delete implements GroupDao.Delete
+func (dao *GroupDaoSqlite) Delete(bo *Group) (bool, error) {
+	numRows, err := dao.GdaoDelete(dao.tableName, dao.toGbo(bo))
+	return numRows > 0, err
+}
+
 // Get implements GroupDao.Create
 func (dao *GroupDaoSqlite) Create(id, name string) (bool, error) {
 	bo := &Group{

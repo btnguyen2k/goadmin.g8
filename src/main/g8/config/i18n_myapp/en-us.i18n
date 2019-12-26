@@ -40,11 +40,14 @@ en-us {
         delete_group = "Delete Group"
         create_group_successful = "Group [%s] has been created successfully"
         update_group_successful = "Group [%s] has been updated successfully"
+        delete_group_confirm    = "Are you sure you wish to delete group [%s]?"
         delete_group_successful = "Group [%s] has been deleted successfully"
-        error_empty_group_id = "Group id must not be empty"
-        error_group_existed = "Group [%s] already existed"
-        error_create_group = "Error while creating group [%s]: %s"
-        error_update_group = "Error while updating group [%s]: %s"
+        error_empty_group_id      = "Group id must not be empty"
+        error_group_existed       = "Group [%s] already existed"
+        error_create_group        = "Error while creating group [%s]: %s"
+        error_update_group        = "Error while updating group [%s]: %s"
+        error_delete_group        = "Error while deleting group [%s]: %s"
+        error_delete_system_group = "Can not delete system group [%s]"
 
         user_username = Username
         user_name     = Name
