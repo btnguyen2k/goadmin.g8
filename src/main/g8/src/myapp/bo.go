@@ -18,6 +18,7 @@ type Group struct {
 
 // GroupDao defines API to access user group storage
 type GroupDao interface {
+	Delete(bo *Group) (bool, error)
 	Create(id, name string) (bool, error)
 	Get(id string) (*Group, error)
 	GetN(fromOffset, maxNumRows int) ([]*Group, error)
