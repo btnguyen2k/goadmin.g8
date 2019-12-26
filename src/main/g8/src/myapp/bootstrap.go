@@ -179,7 +179,16 @@ func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.C
 		viewContext["reverse"] = c.Echo().Reverse
 		viewContext["appInfo"] = goadmin.AppConfig.GetConfig("app")
 		if len(flash) > 0 {
-			viewContext["flash"] = flash[0].(string)
+			flashMsg := flash[0].(string)
+			if strings.HasPrefix(flashMsg, flashPrefixWarning) {
+				viewContext["flashWarning"] = flashMsg[len(flashPrefixWarning):]
+			} else if strings.HasPrefix(flashMsg, flashPrefixError) {
+				viewContext["flashError"] = flashMsg[len(flashPrefixError):]
+			} else if strings.HasPrefix(flashMsg, flashPrefixInfo) {
+				viewContext["flashInfo"] = flashMsg[len(flashPrefixInfo):]
+			} else {
+				viewContext["flashInfo"] = flashMsg
+			}
 		}
 		u := c.Get(ctxCurrentUser)
 		if u != nil {
@@ -347,7 +356,7 @@ func actionCpCreateGroupSubmit(c echo.Context) error {
 	}
 	_, err = groupDao.Create(group.Id, group.Name)
 	if err != nil {
-		errMsg = myI18n.Text("error_db_101", group.Id+"/"+err.Error())
+		errMsg = myI18n.Text("error_create_group", group.Id, err.Error())
 		goto end
 	}
 	addFlashMsg(c, myI18n.Text("create_group_successful", group.Id))
@@ -361,11 +370,58 @@ end:
 }
 
 func actionCpEditGroup(c echo.Context) error {
-	return c.HTML(http.StatusOK, "actionCpEditGroup")
+	gid := c.QueryParam("id")
+	group, err := groupDao.Get(gid)
+	if err != nil {
+		addFlashMsg(c, myI18n.Text("error_db_101", "current/"+err.Error()))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(8))
+	}
+	if group == nil {
+		addFlashMsg(c, flashPrefixWarning+myI18n.Text("error_group_not_found", gid))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(8))
+	}
+	formData := url.Values{}
+	formData.Set("id", group.Id)
+	formData.Set("name", group.Name)
+	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
+		"active":   "groups",
+		"editMode": true,
+		"form":     formData,
+	})
 }
 
 func actionCpEditGroupSubmit(c echo.Context) error {
-	return c.HTML(http.StatusOK, "actionCpEditGroupSubmit")
+	gid := c.QueryParam("id")
+	group, err := groupDao.Get(gid)
+	if err != nil {
+		addFlashMsg(c, myI18n.Text("error_db_101", "current/"+err.Error()))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(8))
+	}
+	if group == nil {
+		addFlashMsg(c, flashPrefixWarning+myI18n.Text("error_group_not_found", gid))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(8))
+	}
+	var errMsg string
+	formData, err := c.FormParams()
+	if err != nil {
+		errMsg = myI18n.Text("error_form_400", err.Error())
+		goto end
+	}
+	group.Name = strings.TrimSpace(formData.Get("name"))
+	_, err = groupDao.Update(group)
+	if err != nil {
+		errMsg = myI18n.Text("error_update_group", group.Id, err.Error())
+		goto end
+	}
+	addFlashMsg(c, myI18n.Text("update_group_successful", group.Id))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(8))
+end:
+	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
+		"active":   "groups",
+		"editMode": true,
+		"form":     formData,
+		"error":    errMsg,
+	})
 }
 
 func actionCpDeleteGroup(c echo.Context) error {
