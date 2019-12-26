@@ -22,6 +22,7 @@ type GroupDao interface {
 	Get(id string) (*Group, error)
 	GetN(fromOffset, maxNumRows int) ([]*Group, error)
 	GetAll() ([]*Group, error)
+	Update(bo *Group) (bool, error)
 }
 
 const (

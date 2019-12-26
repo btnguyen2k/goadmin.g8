@@ -16,6 +16,12 @@ import (
 	"strings"
 )
 
+const (
+	flashPrefixInfo    = "_I_:"
+	flashPrefixWarning = "_W_:"
+	flashPrefixError   = "_E_:"
+)
+
 func getSession(c echo.Context) *sessions.Session {
 	sess, _ := session.Get(namespace, c)
 	return sess

@@ -34,8 +34,23 @@
                             </div>
                         {{end}}
                         <div class="card-body table-responsive p-1">
-                            {{if .flash}}
-                                <p class="alert alert-info" role="alert">{{.flash}}</p>
+                            {{if .flashInfo}}
+                                <p class="alert alert-info alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                    {{.flashInfo}}
+                                </p>
+                            {{end}}
+                            {{if .flashWarning}}
+                                <p class="alert alert-warning alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                    {{.flashWarning}}
+                                </p>
+                            {{end}}
+                            {{if .flashError}}
+                                <p class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                    {{.flashError}}
+                                </p>
                             {{end}}
                             <table class="table table-condensed">
                                 <thead>

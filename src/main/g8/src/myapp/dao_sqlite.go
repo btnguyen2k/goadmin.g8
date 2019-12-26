@@ -172,6 +172,11 @@ type GroupDaoSqlite struct {
 	tableName string
 }
 
+// GdaoCreateFilter implements IGenericDao.GdaoCreateFilter
+func (dao *GroupDaoSqlite) GdaoCreateFilter(_ string, bo godal.IGenericBo) interface{} {
+	return map[string]interface{}{colGroupId: bo.GboGetAttrUnsafe(fieldGroupId, reddo.TypeString)}
+}
+
 // it is recommended to have a function that transforms godal.IGenericBo to business object and vice versa.
 func (dao *GroupDaoSqlite) toBo(gbo godal.IGenericBo) *Group {
 	if gbo == nil {
@@ -231,4 +236,10 @@ func (dao *GroupDaoSqlite) GetN(fromOffset, maxNumRows int) ([]*Group, error) {
 // GetAll implements GroupDao.GetAll
 func (dao *GroupDaoSqlite) GetAll() ([]*Group, error) {
 	return dao.GetN(0, 0)
+}
+
+// Update implements GroupDao.Update
+func (dao *GroupDaoSqlite) Update(bo *Group) (bool, error) {
+	numRows, err := dao.GdaoUpdate(dao.tableName, dao.toGbo(bo))
+	return numRows > 0, err
 }
