@@ -1,0 +1,94 @@
+{{define "title"}}{{.i18n.Text "users"}}{{end}}
+{{define "page_css"}}<!--this page has no custom CSS-->{{end}}
+{{define "page_js"}}<!--this page has no custom JS-->{{end}}
+{{define "page_content"}}
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <!--heading-->
+                    <h1 class="m-0 text-dark">{{.i18n.Text "users"}}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <!--breadcrumb-->
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_dashboard"}}">{{.i18n.Text "home"}}</a></li>
+                        <li class="breadcrumb-item active">{{.i18n.Text "users"}}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        {{if .user.IsSystemUser}}
+                            <div class="card-header">
+                                <div class="card-tools">
+                                    <a href="{{call .reverse "cp_create_user"}}" class="fas fa-file btn btn-sm btn-primary"> {{.i18n.Text "create_user"}}</a>
+                                </div>
+                            </div>
+                        {{end}}
+                        <div class="card-body table-responsive p-1">
+                            {{if .flashInfo}}
+                                <p class="alert alert-info alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                    {{.flashInfo}}
+                                </p>
+                            {{end}}
+                            {{if .flashWarning}}
+                                <p class="alert alert-warning alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                    {{.flashWarning}}
+                                </p>
+                            {{end}}
+                            {{if .flashError}}
+                                <p class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                    {{.flashError}}
+                                </p>
+                            {{end}}
+                            <table class="table table-condensed">
+                                <thead>
+                                <tr>
+                                    <th>{{.i18n.Text "user_username"}}</th>
+                                    <th>{{.i18n.Text "user_name"}}</th>
+                                    <th>{{.i18n.Text "user_group"}}</th>
+                                    <th style="width: 128px">{{.i18n.Text "actions"}}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {{range .users}}
+                                    <tr>
+                                        <td>{{.Username}}</td>
+                                        <td>{{.Name}}</td>
+                                        <td>{{.GroupId}}</td>
+                                        <td>
+                                            <!--access root var using $-->
+                                            <a href="{{.UrlEdit}}" class="fas fa-edit text-primary text-lg" title="{{$.i18n.Text "edit"}}"></a>
+                                            {{if .CanDelete}}
+                                                <a href="{{.UrlDelete}}" class="fas fa-trash-alt text-danger text-lg" title="{{$.i18n.Text "delete"}}"></a>
+                                            {{end}}
+                                        </td>
+                                    </tr>
+                                {{end}}
+                                </tbody>
+                            </table>
+                        </div>
+                        {{if .user.IsSystemUser}}
+                            <div class="card-footer bg-white">
+                                <div class="card-tools">
+                                    <a href="{{call .reverse "cp_create_user"}}" class="fas fa-file btn btn-sm btn-primary"> {{.i18n.Text "create_user"}}</a>
+                                </div>
+                            </div>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{{end}}
