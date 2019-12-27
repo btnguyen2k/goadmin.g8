@@ -321,6 +321,7 @@ func checkCpCreateGroup(c echo.Context) error {
 	if currentUser, err := getCurrentUser(c); err != nil {
 		return errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
 	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		// only admin can create groups
 		return errors.New(myI18n.Text("error_no_permission"))
 	}
 	return nil
@@ -449,6 +450,7 @@ func checkCpDeleteGroup(c echo.Context) (*Group, error) {
 	if currentUser, err := getCurrentUser(c); err != nil {
 		return nil, errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
 	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		// only admin can delete groups
 		return nil, errors.New(myI18n.Text("error_no_permission"))
 	}
 	gid := c.QueryParam("id")
@@ -513,25 +515,28 @@ func checkCpCreateUser(c echo.Context) error {
 	if currentUser, err := getCurrentUser(c); err != nil {
 		return errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
 	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		// only admin can create users
 		return errors.New(myI18n.Text("error_no_permission"))
 	}
 	return nil
 }
 
 func actionCpCreateUser(c echo.Context) error {
-	if err := checkCpCreateGroup(c); err != nil {
+	if err := checkCpCreateUser(c); err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
 		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
 	}
 	formData, _ := c.FormParams()
-	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
-		"active": "groups",
-		"form":   formData,
+	u := &MyAppUtils{c: c}
+	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
+		"active":     "users",
+		"form":       formData,
+		"userGroups": u.AllUserGroups(),
 	})
 }
 
 func actionCpCreateUserSubmit(c echo.Context) error {
-	if err := checkCpCreateGroup(c); err != nil {
+	if err := checkCpCreateUser(c); err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
 		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
 	}

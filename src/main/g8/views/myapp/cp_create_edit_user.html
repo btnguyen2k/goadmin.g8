@@ -1,0 +1,99 @@
+{{define "title"}}{{if .editMode}}{{.i18n.Text "edit_user"}}{{else}}{{.i18n.Text "create_user"}}{{end}}{{end}}
+{{define "page_css"}}
+    {{if .cdn_mode}}
+        <!-- Select 2 -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.11/css/select2.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.3.2/dist/select2-bootstrap4.min.css">
+    {{else}}
+        <!-- Select 2 -->
+        <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/plugins/select2/css/select2.min.css">
+        <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+    {{end}}
+{{end}}
+{{define "page_js"}}
+    {{if .cdn_mode}}
+        <!-- Select2 -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.11/js/select2.full.min.js"></script>
+    {{else}}
+        <!-- Select2 -->
+        <script src="{{.static}}/adminlte-3.0.1/plugins/select2/js/select2.full.min.js"></script>
+    {{end}}
+    <script>
+        $(function () {
+            //Initialize Select2 Elements
+            $('.select2').select2({theme: 'bootstrap4'})
+        })
+    </script>
+{{end}}
+{{define "page_content"}}
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <!--heading-->
+                    <h1 class="m-0 text-dark">{{if .editMode}}{{.i18n.Text "edit_user"}}{{else}}{{.i18n.Text "create_user"}}{{end}}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <!--breadcrumb-->
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_dashboard"}}">{{.i18n.Text "home"}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_users"}}">{{.i18n.Text "users"}}</a></li>
+                        <li class="breadcrumb-item active">{{if .editMode}}{{.i18n.Text "edit_user"}}{{else}}{{.i18n.Text "create_user"}}{{end}}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <form method="post">
+                <div class="card card-default">
+                    <div class="card-body">
+                        {{if .error}}
+                            <p class="alert alert-danger alert-dismissible" role="alert">
+                                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                                        {{.error}}
+                                    </p>
+                        {{end}}
+                        <div class="form-group">
+                                    <div class="form-label-group">
+                                        <label for="id">{{.i18n.Text "user_username"}}:</label>
+                                        <input type="text" id="username" name="username" class="form-control" placeholder="{{.i18n.Text "user_username"}}" value="{{.form.Get "username"}}" {{if .editMode}}readonly="readonly"{{end}}/>
+                                    </div>
+                                </div>
+                        <div class="form-group">
+                                    <div class="form-label-group">
+                                        <label for="name">{{.i18n.Text "user_name"}}:</label>
+                                        <input type="text" id="name" name="name" class="form-control" placeholder="{{.i18n.Text "user_name"}}" value="{{.form.Get "name"}}"/>
+                                    </div>
+                                </div>
+                        <div class="form-group">
+                            <label for="group">{{.i18n.Text "user_group"}}:</label>
+                            <select id="group" name="group" class="form-control select2" style="width: 100%;">
+                                {{range .userGroups}}
+                                    <option {{if eq .Id ($.form.Get "group")}}selected="selected"{{end}} value=".Id">{{.Name}}</option>
+                                {{end}}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white small text-muted">
+                        <button type="submit" class="btn btn-primary btn-icon-split btn-sm">
+                            <span class="icon"><i class="fas fa-save"></i></span>
+                            <span class="text" style="width: 96px">{{.i18n.Text "save"}}</span>
+                        </button>
+                        <button type="reset" class="btn btn-warning btn-icon-split btn-sm">
+                            <span class="icon"><i class="fas fa-undo"></i></span>
+                            <span class="text" style="width: 96px">{{.i18n.Text "reset"}}</span>
+                        </button>
+                        <a href="{{call .reverse "cp_groups"}}" class="btn btn-secondary btn-icon-split btn-sm">
+                            <span class="icon"><i class="fas fa-times"></i></span>
+                            <span class="text" style="width: 96px">{{.i18n.Text "cancel"}}</span>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+{{end}}

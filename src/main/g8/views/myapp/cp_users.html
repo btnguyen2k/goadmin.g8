@@ -29,7 +29,7 @@
                         {{if .user.IsSystemUser}}
                             <div class="card-header">
                                 <div class="card-tools">
-                                    <a href="{{call .reverse "cp_create_user"}}" class="fas fa-file btn btn-sm btn-primary"> {{.i18n.Text "create_user"}}</a>
+                                    <a href="{{call .reverse "cp_create_user"}}" class="fas fa-user-alt btn btn-sm btn-primary"> {{.i18n.Text "create_user"}}</a>
                                 </div>
                             </div>
                         {{end}}
@@ -82,7 +82,7 @@
                         {{if .user.IsSystemUser}}
                             <div class="card-footer bg-white">
                                 <div class="card-tools">
-                                    <a href="{{call .reverse "cp_create_user"}}" class="fas fa-file btn btn-sm btn-primary"> {{.i18n.Text "create_user"}}</a>
+                                    <a href="{{call .reverse "cp_create_user"}}" class="fas fa-user-alt btn btn-sm btn-primary"> {{.i18n.Text "create_user"}}</a>
                                 </div>
                             </div>
                         {{end}}
