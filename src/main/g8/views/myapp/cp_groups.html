@@ -29,7 +29,10 @@
                         {{if .user.IsSystemUser}}
                             <div class="card-header">
                                 <div class="card-tools">
-                                    <a href="{{call .reverse "cp_create_group"}}" class="fas fa-users btn btn-sm btn-primary"> {{.i18n.Text "create_group"}}</a>
+                                    <a href="{{call .reverse "cp_create_group"}}" class="btn btn-sm btn-primary">
+                                        <span class="icon"><i class="fas fa-users"></i></span>
+                                        <span class="text">{{.i18n.Text "create_group"}}</span>
+                                    </a>
                                 </div>
                             </div>
                         {{end}}
@@ -80,7 +83,10 @@
                         {{if .user.IsSystemUser}}
                             <div class="card-footer bg-white">
                                 <div class="card-tools">
-                                    <a href="{{call .reverse "cp_create_group"}}" class="fas fa-users btn btn-sm btn-primary"> {{.i18n.Text "create_group"}}</a>
+                                    <a href="{{call .reverse "cp_create_group"}}" class="btn btn-sm btn-primary">
+                                        <span class="icon"><i class="fas fa-users"></i></span>
+                                        <span class="text">{{.i18n.Text "create_group"}}</span>
+                                    </a>
                                 </div>
                             </div>
                         {{end}}

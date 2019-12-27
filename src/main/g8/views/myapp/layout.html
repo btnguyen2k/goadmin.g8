@@ -15,12 +15,12 @@
         <!-- Font Awesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
         <!-- overlayScrollbars -->
-        <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.10.0/css/OverlayScrollbars.min.css">-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.10.0/css/OverlayScrollbars.min.css">
     {{else}}
         <!-- Font Awesome -->
         <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/plugins/fontawesome-free/css/all.min.css">
         <!-- overlayScrollbars -->
-        <!--<link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">-->
+        <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
     {{end}}
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
@@ -175,7 +175,7 @@
                     <li class="nav-item">
                         <a href="{{call .reverse "cp_groups"}}" class="nav-link {{if eq .active "groups"}}active{{end}}">
                             <i class="nav-icon fas fa-users"></i>
-                            <p>{{.i18n.Text "groups"}}<span class="badge badge-success right">{{.appUtils.NumUserGroups}}</span></p>
+                            <p>{{.i18n.Text "groups"}}<span class="badge badge-warning right">{{.appUtils.NumUserGroups}}</span></p>
                         </a>
                     </li>
                 </ul>
@@ -206,14 +206,14 @@
     <!-- Bootstrap 4 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
     <!-- overlayScrollbars -->
-    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.10.0/js/jquery.overlayScrollbars.min.js"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.10.0/js/jquery.overlayScrollbars.min.js"></script>
 {{else}}
     <!-- jQuery -->
     <script src="{{.static}}/adminlte-3.0.1/plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="{{.static}}/adminlte-3.0.1/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- overlayScrollbars -->
-    <!--<script src="{{.static}}/adminlte-3.0.1/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>-->
+    <script src="{{.static}}/adminlte-3.0.1/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
 {{end}}
 <script src="{{.static}}/adminlte-3.0.1/dist/js/adminlte.min.js"></script>
 
