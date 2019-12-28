@@ -544,7 +544,9 @@ func actionCpCreateUserSubmit(c echo.Context) error {
 	var errMsg string
 	var err error
 	var formData url.Values
-	var existingGroup, group *Group
+	var existingUser, user *User
+	var u = &MyAppUtils{c: c}
+	var pwd, pwd2 string
 
 	formData, err = c.FormParams()
 	if err != nil {
@@ -552,35 +554,48 @@ func actionCpCreateUserSubmit(c echo.Context) error {
 		goto end
 	}
 
-	group = &Group{
-		Id:   strings.ToLower(strings.TrimSpace(formData.Get("id"))),
-		Name: strings.TrimSpace(formData.Get("name")),
+	user = &User{
+		Username: strings.ToLower(strings.TrimSpace(formData.Get("username"))),
+		Name:     strings.TrimSpace(formData.Get("name")),
+		GroupId:  strings.ToLower(strings.TrimSpace(formData.Get("group"))),
 	}
-	if group.Id == "" {
-		errMsg = myI18n.Text("error_empty_group_id")
+	pwd = strings.TrimSpace(formData.Get("password"))
+	pwd2 = strings.TrimSpace(formData.Get("password2"))
+	if user.Username == "" {
+		errMsg = myI18n.Text("error_empty_user_username")
 		goto end
 	}
-	existingGroup, err = groupDao.Get(group.Id)
+	existingUser, err = userDao.Get(user.Username)
 	if err != nil {
-		errMsg = myI18n.Text("error_db_101", group.Id+"/"+err.Error())
+		errMsg = myI18n.Text("error_db_101", user.Username+"/"+err.Error())
 		goto end
 	}
-	if existingGroup != nil {
-		errMsg = myI18n.Text("error_group_existed", group.Id)
+	if existingUser != nil {
+		errMsg = myI18n.Text("error_user_existed", user.Username)
 		goto end
 	}
-	_, err = groupDao.Create(group.Id, group.Name)
+	if pwd == "" {
+		errMsg = myI18n.Text("error_empty_user_password")
+		goto end
+	}
+	if pwd != pwd2 {
+		errMsg = myI18n.Text("error_mismatched_passwords")
+		goto end
+	}
+	user.Password = encryptPassword(user.Username, pwd)
+	_, err = userDao.Create(user.Username, user.Password, user.Name, user.GroupId)
 	if err != nil {
-		errMsg = myI18n.Text("error_create_group", group.Id, err.Error())
+		errMsg = myI18n.Text("error_create_user", user.Username, err.Error())
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("create_group_successful", group.Id))
-	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+	addFlashMsg(c, myI18n.Text("create_user_successful", user.Username))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
 end:
-	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
-		"active": "groups",
-		"form":   formData,
-		"error":  errMsg,
+	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
+		"active":     "users",
+		"form":       formData,
+		"userGroups": u.AllUserGroups(),
+		"error":      errMsg,
 	})
 }
 

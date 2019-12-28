@@ -18,6 +18,8 @@ en-us {
         username       = "Username"
         password       = "Password"
 
+        error_login_failed = "Login failed: password does not match"
+
         users   = Users
         user    = User
         groups  = Groups
@@ -52,11 +54,25 @@ en-us {
         user_username = Username
         user_name     = Name
         user_group    = Group
+        user_password = Password
+        user_confirmed_password = "Confirmed Password"
         create_user   = "Create User"
+        edit_user     = "Edit User"
+        delete_user   = "Delete User"
+        create_user_successful = "User [%s] has been created successfully"
+        update_user_successful = "User [%s] has been updated successfully"
+        delete_user_confirm    = "Are you sure you wish to delete user [%s]?"
+        delete_user_successful = "User [%s] has been deleted successfully"
+        error_empty_user_username = "Username must not be empty"
+        error_user_existed        = "User [%s] already existed"
+        error_empty_user_password = "Password must not be empty"
+        error_mismatched_passwords= "Password does not match confirmed one"
+        error_create_user         = "Error while creating user [%s]: %s"
+        error_update_user         = "Error while updating user [%s]: %s"
+        error_delete_user         = "Error while deleting user [%s]: %s"
+        error_delete_system_user  = "Can not delete system user [%s]"
 
         error_user_not_found  = "User [%s] does not exist"
         error_group_not_found = "Group [%s] does not exist"
-
-        error_login_failed = "Login failed: password does not match"
     }
 }

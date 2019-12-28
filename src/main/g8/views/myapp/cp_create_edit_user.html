@@ -65,6 +65,19 @@
                         </div>
                         <div class="form-group">
                             <div class="form-label-group">
+                                <label for="password">{{.i18n.Text "user_password"}}:</label>
+                                <input type="password" id="password" name="password" class="form-control" placeholder="{{.i18n.Text "user_password"}}"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="form-label-group">
+                                <label for="password2">{{.i18n.Text "user_confirmed_password"}}:</label>
+                                <input type="password" id="password2" name="password2" class="form-control" placeholder="{{.i18n.Text "user_confirmed_password"}}"/>
+                            </div>
+                        </div>
+                        <hr/>
+                        <div class="form-group">
+                            <div class="form-label-group">
                                 <label for="name">{{.i18n.Text "user_name"}}:</label>
                                 <input type="text" id="name" name="name" class="form-control" placeholder="{{.i18n.Text "user_name"}}" value="{{.form.Get "name"}}"/>
                             </div>
@@ -73,7 +86,7 @@
                             <label for="group">{{.i18n.Text "user_group"}}:</label>
                             <select id="group" name="group" class="form-control select2" style="width: 100%;">
                                 {{range .userGroups}}
-                                    <option {{if eq .Id ($.form.Get "group")}}selected="selected"{{end}} value=".Id">{{.Name}}</option>
+                                    <option {{if eq .Id ($.form.Get "group")}}selected="selected"{{end}} value="{{.Id}}">{{.Name}}</option>
                                 {{end}}
                             </select>
                         </div>
@@ -87,7 +100,7 @@
                             <span class="icon"><i class="fas fa-undo"></i></span>
                             <span class="text" style="width: 96px">{{.i18n.Text "reset"}}</span>
                         </button>
-                        <a href="{{call .reverse "cp_groups"}}" class="btn btn-secondary btn-icon-split btn-sm">
+                        <a href="{{call .reverse "cp_users"}}" class="btn btn-secondary btn-icon-split btn-sm">
                             <span class="icon"><i class="fas fa-times"></i></span>
                             <span class="text" style="width: 96px">{{.i18n.Text "cancel"}}</span>
                         </a>
