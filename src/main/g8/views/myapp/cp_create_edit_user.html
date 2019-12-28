@@ -85,6 +85,7 @@
                         <div class="form-group">
                             <label for="group">{{.i18n.Text "user_group"}}:</label>
                             <select id="group" name="group" class="form-control select2" style="width: 100%;">
+                                <option value="">-= {{.i18n.Text "groups"}} =-</option>
                                 {{range .userGroups}}
                                     <option {{if eq .Id ($.form.Get "group")}}selected="selected"{{end}} value="{{.Id}}">{{.Name}}</option>
                                 {{end}}

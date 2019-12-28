@@ -43,8 +43,10 @@ type User struct {
 
 // UserDao defines API to access user account storage
 type UserDao interface {
+	Delete(bo *User) (bool, error)
 	Create(username, encryptedPassword, name, groupId string) (bool, error)
 	Get(username string) (*User, error)
 	GetN(fromOffset, maxNumRows int) ([]*User, error)
 	GetAll() ([]*User, error)
+	Update(bo *User) (bool, error)
 }

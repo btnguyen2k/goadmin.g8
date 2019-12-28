@@ -74,6 +74,11 @@ type UserDaoSqlite struct {
 	tableName string
 }
 
+// GdaoCreateFilter implements IGenericDao.GdaoCreateFilter
+func (dao *UserDaoSqlite) GdaoCreateFilter(_ string, bo godal.IGenericBo) interface{} {
+	return map[string]interface{}{colUserUsername: bo.GboGetAttrUnsafe(fieldUserUsername, reddo.TypeString)}
+}
+
 // it is recommended to have a function that transforms godal.IGenericBo to business object and vice versa.
 func (dao *UserDaoSqlite) toBo(gbo godal.IGenericBo) *User {
 	if gbo == nil {
@@ -99,6 +104,12 @@ func (dao *UserDaoSqlite) toGbo(bo *User) godal.IGenericBo {
 	gbo.GboSetAttr(fieldUserName, bo.Name)
 	gbo.GboSetAttr(fieldUserGroupId, bo.GroupId)
 	return gbo
+}
+
+// Delete implements UserDao.Delete
+func (dao *UserDaoSqlite) Delete(bo *User) (bool, error) {
+	numRows, err := dao.GdaoDelete(dao.tableName, dao.toGbo(bo))
+	return numRows > 0, err
 }
 
 // Get implements UserDao.Create
@@ -139,6 +150,12 @@ func (dao *UserDaoSqlite) GetN(fromOffset, maxNumRows int) ([]*User, error) {
 // GetAll implements UserDao.GetAll
 func (dao *UserDaoSqlite) GetAll() ([]*User, error) {
 	return dao.GetN(0, 0)
+}
+
+// Update implements UserDao.Update
+func (dao *UserDaoSqlite) Update(bo *User) (bool, error) {
+	numRows, err := dao.GdaoUpdate(dao.tableName, dao.toGbo(bo))
+	return numRows > 0, err
 }
 
 /*----------------------------------------------------------------------*/

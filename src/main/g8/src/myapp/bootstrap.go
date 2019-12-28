@@ -391,7 +391,7 @@ end:
 func checkCpEditGroup(c echo.Context) (*Group, error) {
 	gid := c.QueryParam("id")
 	if group, err := groupDao.Get(gid); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", "current/"+err.Error()))
+		return nil, errors.New(myI18n.Text("error_db_101", gid+"/"+err.Error()))
 	} else if group == nil {
 		return nil, errors.New(myI18n.Text("error_group_not_found", gid))
 	} else {
@@ -599,61 +599,84 @@ end:
 	})
 }
 
-func checkCpEditUser(c echo.Context) (*Group, error) {
-	gid := c.QueryParam("id")
-	if group, err := groupDao.Get(gid); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", "current/"+err.Error()))
-	} else if group == nil {
-		return nil, errors.New(myI18n.Text("error_group_not_found", gid))
+func checkCpEditUser(c echo.Context) (*User, error) {
+	if currentUser, err := getCurrentUser(c); err != nil {
+		return nil, errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
+	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		// only admin can edit users
+		return nil, errors.New(myI18n.Text("error_no_permission"))
+	}
+	username := c.QueryParam("u")
+	if user, err := userDao.Get(username); err != nil {
+		return nil, errors.New(myI18n.Text("error_db_101", username+"/"+err.Error()))
+	} else if user == nil {
+		return nil, errors.New(myI18n.Text("error_user_not_found", username))
 	} else {
-		return group, nil
+		return user, nil
 	}
 }
 
 func actionCpEditUser(c echo.Context) error {
-	group, err := checkCpEditGroup(c)
+	user, err := checkCpEditUser(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
 	}
 
+	u := &MyAppUtils{c: c}
 	formData := url.Values{}
-	formData.Set("id", group.Id)
-	formData.Set("name", group.Name)
-	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
-		"active":   "groups",
-		"editMode": true,
-		"form":     formData,
+	formData.Set("username", user.Username)
+	formData.Set("name", user.Name)
+	formData.Set("group", user.GroupId)
+	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
+		"active":     "users",
+		"editMode":   true,
+		"form":       formData,
+		"userGroups": u.AllUserGroups(),
 	})
 }
 
 func actionCpEditUserSubmit(c echo.Context) error {
-	group, err := checkCpEditGroup(c)
+	user, err := checkCpEditUser(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
 	}
 
+	var u = &MyAppUtils{c: c}
 	var errMsg string
+	var pwd, pwd2 string
 	formData, err := c.FormParams()
 	if err != nil {
 		errMsg = myI18n.Text("error_form_400", err.Error())
 		goto end
 	}
-	group.Name = strings.TrimSpace(formData.Get("name"))
-	_, err = groupDao.Update(group)
+	pwd = strings.TrimSpace(formData.Get("password"))
+	pwd2 = strings.TrimSpace(formData.Get("password2"))
+	if pwd != "" {
+		// to change password: enter new one
+		if pwd != pwd2 {
+			errMsg = myI18n.Text("error_mismatched_passwords")
+			goto end
+		}
+		user.Password = encryptPassword(user.Username, pwd)
+	}
+	user.Name = strings.TrimSpace(formData.Get("name"))
+	user.GroupId = strings.ToLower(strings.TrimSpace(formData.Get("group")))
+	_, err = userDao.Update(user)
 	if err != nil {
-		errMsg = myI18n.Text("error_update_group", group.Id, err.Error())
+		errMsg = myI18n.Text("error_update_user", user.Username, err.Error())
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("update_group_successful", group.Id))
-	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+	addFlashMsg(c, myI18n.Text("update_user_successful", user.Username))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
 end:
-	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
-		"active":   "groups",
-		"editMode": true,
-		"form":     formData,
-		"error":    errMsg,
+	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
+		"active":     "users",
+		"editMode":   true,
+		"form":       formData,
+		"userGroups": u.AllUserGroups(),
+		"error":      errMsg,
 	})
 }
 
