@@ -26,7 +26,7 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="card">
-                        {{if .user.IsSystemUser}}
+                        {{if .currentUser.IsSystemUser}}
                             <div class="card-header">
                                 <div class="card-tools">
                                     <a href="{{call .reverse "cp_create_user"}}" class="btn btn-sm btn-primary">
@@ -82,7 +82,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        {{if .user.IsSystemUser}}
+                        {{if .currentUser.IsSystemUser}}
                             <div class="card-footer bg-white">
                                 <div class="card-tools">
                                     <a href="{{call .reverse "cp_create_user"}}" class="btn btn-sm btn-primary">

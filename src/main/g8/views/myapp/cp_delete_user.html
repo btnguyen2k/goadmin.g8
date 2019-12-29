@@ -1,4 +1,4 @@
-{{define "title"}}{{if .editMode}}{{.i18n.Text "edit_group"}}{{else}}{{.i18n.Text "create_group"}}{{end}}{{end}}
+{{define "title"}}{{.i18n.Text "delete_user"}}{{end}}
 {{define "page_css"}}<!--this page has no custom CSS-->{{end}}
 {{define "page_js"}}<!--this page has no custom JS-->{{end}}
 {{define "page_content"}}
@@ -7,14 +7,14 @@
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <!--heading-->
-                    <h1 class="m-0 text-dark">{{if .editMode}}{{.i18n.Text "edit_group"}}{{else}}{{.i18n.Text "create_group"}}{{end}}</h1>
+                    <h1 class="m-0 text-dark">{{.i18n.Text "user_group"}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <!--breadcrumb-->
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="{{call .reverse "cp_dashboard"}}">{{.i18n.Text "home"}}</a></li>
-                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_groups"}}">{{.i18n.Text "groups"}}</a></li>
-                        <li class="breadcrumb-item active">{{if .editMode}}{{.i18n.Text "edit_group"}}{{else}}{{.i18n.Text "create_group"}}{{end}}</li>
+                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_users"}}">{{.i18n.Text "users"}}</a></li>
+                        <li class="breadcrumb-item active">{{.i18n.Text "delete_user"}}</li>
                     </ol>
                 </div>
             </div>
@@ -27,6 +27,9 @@
             <form method="post">
                 <div class="card">
                     <div class="card-body">
+                        <p class="alert alert-warning" role="alert">
+                            {{.i18n.Text "delete_group_confirm" .userGroup.Id}}
+                        </p>
                         {{if .error}}
                             <p class="alert alert-danger alert-dismissible" role="alert">
                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -36,26 +39,22 @@
                         <div class="form-group">
                             <div class="form-label-group">
                                 <label for="id">{{.i18n.Text "group_id"}}:</label>
-                                <input type="text" id="id" name="id" class="form-control" placeholder="{{.i18n.Text "group_id"}}" value="{{.form.Get "id"}}" {{if .editMode}}readonly="readonly"{{end}}/>
+                                <input type="text" id="id" name="id" class="form-control" placeholder="{{.i18n.Text "group_id"}}" value="{{.userGroup.Id}}" readonly="readonly"/>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="form-label-group">
                                 <label for="name">{{.i18n.Text "group_name"}}:</label>
-                                <input type="text" id="name" name="name" class="form-control" placeholder="{{.i18n.Text "group_name"}}" value="{{.form.Get "name"}}"/>
+                                <input type="text" id="name" name="name" class="form-control" placeholder="{{.i18n.Text "group_name"}}" value="{{.userGroup.Name}}" readonly="readonly"/>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer bg-white small text-muted">
-                        <button type="submit" class="btn btn-primary btn-icon-split btn-sm">
-                            <span class="icon"><i class="fas fa-save"></i></span>
-                            <span class="text" style="width: 96px">{{.i18n.Text "save"}}</span>
+                        <button type="submit" class="btn btn-danger btn-icon-split btn-sm">
+                            <span class="icon"><i class="fas fa-trash-alt"></i></span>
+                            <span class="text" style="width: 96px">{{.i18n.Text "delete"}}</span>
                         </button>
-                        <button type="reset" class="btn btn-warning btn-icon-split btn-sm">
-                            <span class="icon"><i class="fas fa-undo"></i></span>
-                            <span class="text" style="width: 96px">{{.i18n.Text "reset"}}</span>
-                        </button>
-                        <a href="{{call .reverse "cp_groups"}}" class="btn btn-default btn-icon-split btn-sm">
+                        <a href="{{call .reverse "cp_groups"}}" class="btn btn-secondary btn-icon-split btn-sm">
                             <span class="icon"><i class="fas fa-times"></i></span>
                             <span class="text" style="width: 96px">{{.i18n.Text "cancel"}}</span>
                         </a>

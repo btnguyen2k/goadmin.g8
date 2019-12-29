@@ -24,27 +24,27 @@
     <!-- Main content -->
     <section class="content">
         <div class="container-fluid">
-            <form method="post">
-                <div class="card">
+            <form method="post" class="form-horizontal offset-sm-2 col-sm-8">
+                <div class="card card-warning">
+                    <div class="card-header">
+                        <h3 class="card-title">{{.i18n.Text "delete_group_confirm" .userGroup.Id}}</h3>
+                    </div>
                     <div class="card-body">
-                        <p class="alert alert-warning" role="alert">
-                            {{.i18n.Text "delete_group_confirm" .userGroup.Id}}
-                        </p>
                         {{if .error}}
                             <p class="alert alert-danger alert-dismissible" role="alert">
                                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                 {{.error}}
                             </p>
                         {{end}}
-                        <div class="form-group">
-                            <div class="form-label-group">
-                                <label for="id">{{.i18n.Text "group_id"}}:</label>
+                        <div class="form-group row">
+                            <label for="id" class="col-sm-2 col-form-label">{{.i18n.Text "group_id"}}:</label>
+                            <div class="col-sm-10">
                                 <input type="text" id="id" name="id" class="form-control" placeholder="{{.i18n.Text "group_id"}}" value="{{.userGroup.Id}}" readonly="readonly"/>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <div class="form-label-group">
-                                <label for="name">{{.i18n.Text "group_name"}}:</label>
+                        <div class="form-group row">
+                            <label for="name" class="col-sm-2 col-form-label">{{.i18n.Text "group_name"}}:</label>
+                            <div class="col-sm-10">
                                 <input type="text" id="name" name="name" class="form-control" placeholder="{{.i18n.Text "group_name"}}" value="{{.userGroup.Name}}" readonly="readonly"/>
                             </div>
                         </div>
@@ -54,7 +54,7 @@
                             <span class="icon"><i class="fas fa-trash-alt"></i></span>
                             <span class="text" style="width: 96px">{{.i18n.Text "delete"}}</span>
                         </button>
-                        <a href="{{call .reverse "cp_groups"}}" class="btn btn-secondary btn-icon-split btn-sm">
+                        <a href="{{call .reverse "cp_groups"}}" class="btn btn-default btn-icon-split btn-sm float-right">
                             <span class="icon"><i class="fas fa-times"></i></span>
                             <span class="text" style="width: 96px">{{.i18n.Text "cancel"}}</span>
                         </a>

@@ -205,9 +205,9 @@ func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.C
 			switch u.(type) {
 			case User:
 				usr := u.(User)
-				viewContext["user"] = toUserModel(c, &usr)
+				viewContext["currentUser"] = toUserModel(c, &usr)
 			case *User:
-				viewContext["user"] = toUserModel(c, u.(*User))
+				viewContext["currentUser"] = toUserModel(c, u.(*User))
 			}
 		}
 	}
@@ -455,7 +455,7 @@ func checkCpDeleteGroup(c echo.Context) (*Group, error) {
 	}
 	gid := c.QueryParam("id")
 	if group, err := groupDao.Get(gid); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", "current/"+err.Error()))
+		return nil, errors.New(myI18n.Text("error_db_101", gid+"/"+err.Error()))
 	} else if group == nil {
 		return nil, errors.New(myI18n.Text("error_group_not_found", gid))
 	} else if group.Id == SystemGroupId {
@@ -629,10 +629,11 @@ func actionCpEditUser(c echo.Context) error {
 	formData.Set("name", user.Name)
 	formData.Set("group", user.GroupId)
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
-		"active":     "users",
-		"editMode":   true,
-		"form":       formData,
-		"userGroups": u.AllUserGroups(),
+		"active":       "users",
+		"editMode":     true,
+		"form":         formData,
+		"userGroups":   u.AllUserGroups(),
+		"disableGroup": user.Username == AdminUserUsernname,
 	})
 }
 
@@ -662,7 +663,10 @@ func actionCpEditUserSubmit(c echo.Context) error {
 		user.Password = encryptPassword(user.Username, pwd)
 	}
 	user.Name = strings.TrimSpace(formData.Get("name"))
-	user.GroupId = strings.ToLower(strings.TrimSpace(formData.Get("group")))
+	if user.Username != AdminUserUsernname {
+		// do not change group of system admin user
+		user.GroupId = strings.ToLower(strings.TrimSpace(formData.Get("group")))
+	}
 	_, err = userDao.Update(user)
 	if err != nil {
 		errMsg = myI18n.Text("error_update_user", user.Username, err.Error())
@@ -672,64 +676,66 @@ func actionCpEditUserSubmit(c echo.Context) error {
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
-		"active":     "users",
-		"editMode":   true,
-		"form":       formData,
-		"userGroups": u.AllUserGroups(),
-		"error":      errMsg,
+		"active":       "users",
+		"editMode":     true,
+		"form":         formData,
+		"userGroups":   u.AllUserGroups(),
+		"error":        errMsg,
+		"disableGroup": user.Username == AdminUserUsernname,
 	})
 }
 
-func checkCpDeleteUser(c echo.Context) (*Group, error) {
+func checkCpDeleteUser(c echo.Context) (*User, error) {
 	if currentUser, err := getCurrentUser(c); err != nil {
 		return nil, errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
 	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		// only admin can delete users
 		return nil, errors.New(myI18n.Text("error_no_permission"))
 	}
-	gid := c.QueryParam("id")
-	if group, err := groupDao.Get(gid); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", "current/"+err.Error()))
-	} else if group == nil {
-		return nil, errors.New(myI18n.Text("error_group_not_found", gid))
-	} else if group.Id == SystemGroupId {
-		return nil, errors.New(myI18n.Text("error_delete_system_group", gid))
+	username := c.QueryParam("u")
+	if user, err := userDao.Get(username); err != nil {
+		return nil, errors.New(myI18n.Text("error_db_101", username+"/"+err.Error()))
+	} else if user == nil {
+		return nil, errors.New(myI18n.Text("error_user_not_found", username))
+	} else if username == AdminUserUsernname {
+		return nil, errors.New(myI18n.Text("error_delete_system_user", username))
 	} else {
-		return group, nil
+		return user, nil
 	}
 }
 
 func actionCpDeleteUser(c echo.Context) error {
-	group, err := checkCpDeleteGroup(c)
+	user, err := checkCpDeleteUser(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
 	}
 
-	return c.Render(http.StatusOK, namespace+":layout:cp_delete_group", map[string]interface{}{
-		"active":    "groups",
-		"userGroup": toGroupModel(c, group),
+	return c.Render(http.StatusOK, namespace+":layout:cp_delete_user", map[string]interface{}{
+		"active": "users",
+		"user":   toUserModel(c, user),
 	})
 }
 
 func actionCpDeleteUserSubmit(c echo.Context) error {
-	group, err := checkCpDeleteGroup(c)
+	user, err := checkCpDeleteUser(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
 	}
 
 	var errMsg string
-	_, err = groupDao.Delete(group)
+	_, err = userDao.Delete(user)
 	if err != nil {
-		errMsg = myI18n.Text("error_delete_group", group.Id, err.Error())
+		errMsg = myI18n.Text("error_delete_user", user.Username, err.Error())
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("delete_group_successful", group.Id))
-	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+	addFlashMsg(c, myI18n.Text("delete_user_successful", user.Username))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
 end:
-	return c.Render(http.StatusOK, namespace+":layout:cp_delete_group", map[string]interface{}{
-		"active":    "groups",
-		"userGroup": toGroupModel(c, group),
-		"error":     errMsg,
+	return c.Render(http.StatusOK, namespace+":layout:cp_delete_user", map[string]interface{}{
+		"active": "users",
+		"user":   toUserModel(c, user),
+		"error":  errMsg,
 	})
 }

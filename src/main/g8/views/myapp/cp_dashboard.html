@@ -73,7 +73,7 @@
                         <div class="card-header">
                             <h3 class="card-title" style="font-weight: bold">{{.i18n.Text "groups"}} ({{.appUtils.NumUserGroups}})</h3>
                             <div class="card-tools">
-                                {{if .user.IsSystemUser}}
+                                {{if .currentUser.IsSystemUser}}
                                     <a href="{{call .reverse "cp_create_group"}}" class="fas fa-file btn btn-sm btn-primary"> {{.i18n.Text "create_group"}}</a>
                                 {{end}}
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -134,7 +134,7 @@
                         <div class="card-header">
                             <h3 class="card-title" style="font-weight: bold">{{.i18n.Text "users"}} ({{.appUtils.NumUsers}})</h3>
                             <div class="card-tools">
-                                {{if .user.IsSystemUser}}
+                                {{if .currentUser.IsSystemUser}}
                                     <a href="{{call .reverse "cp_create_user"}}" class="fas fa-file btn btn-sm btn-primary"> {{.i18n.Text "create_user"}}</a>
                                 {{end}}
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
