@@ -3,6 +3,7 @@ package myapp
 const (
 	SystemGroupId      = "system"
 	AdminUserUsernname = "admin"
+	AdminUserName      = "Administrator"
 )
 
 const (

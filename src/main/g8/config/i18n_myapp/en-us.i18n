@@ -10,6 +10,7 @@ en-us {
 
         home       = Home
         dashboard  = Dashboard
+        profile    = Profile
 
         remember_login = "Remember Login"
         signin         = "Sign In"
@@ -71,6 +72,14 @@ en-us {
         error_update_user         = "Error while updating user [%s]: %s"
         error_delete_user         = "Error while deleting user [%s]: %s"
         error_delete_system_user  = "Can not delete system user [%s]"
+
+        change_password            = "Change Password"
+        change_password_successful = "Password has been updated successfully"
+        change_password_msg        = "To change password: confirm current one and enter new password change"
+        current_password           = "Current password"
+        new_password               = "New password"
+        confirmed_new_password     = "Confirmed password"
+        error_password_not_matched = "Current password does not match"
 
         error_user_not_found  = "User [%s] does not exist"
         error_group_not_found = "Group [%s] does not exist"

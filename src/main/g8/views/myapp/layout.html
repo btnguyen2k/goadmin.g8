@@ -160,7 +160,7 @@
                     <img src="{{.static}}/adminlte-3.0.1/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
                 </div>
                 <div class="info">
-                    <a href="#" class="d-block">{{.currentUser.Username}}<!--'.currentUser' must not be nil--></a>
+                    <a href="{{call .reverse "cp_profile"}}" class="d-block" {{if eq .active "profile"}}style="font-weight: bold"{{end}}>{{.currentUser.Name}}<!--'.currentUser' must not be nil--></a>
                 </div>
             </div>
 
@@ -176,6 +176,15 @@
                         <a href="{{call .reverse "cp_groups"}}" class="nav-link {{if eq .active "groups"}}active{{end}}">
                             <i class="nav-icon fas fa-users"></i>
                             <p>{{.i18n.Text "groups"}}<span class="badge badge-warning right">{{.appUtils.NumUserGroups}}</span></p>
+                        </a>
+                    </li>
+
+                    <li class="nav-header">{{.i18n.Text "signout"}}</li>
+
+                    <li class="nav-item">
+                        <a href="{{call .reverse "cp_logout"}}" class="nav-link">
+                            <i class="nav-icon fas fa-user-lock"></i>
+                            <p>{{.i18n.Text "signout"}}</p>
                         </a>
                     </li>
                 </ul>

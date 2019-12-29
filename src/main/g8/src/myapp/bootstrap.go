@@ -45,6 +45,10 @@ const (
 	actionNameCpLoginSubmit = "cp_login_submit"
 	actionNameCpLogout      = "cp_logout"
 	actionNameCpDashboard   = "cp_dashboard"
+	actionNameCpProfile     = "cp_profile"
+
+	actionNameCpChangePassword       = "cp_change_password"
+	actionNameCpChangePasswordSubmit = "cp_change_password_submit"
 
 	actionNameCpGroups            = "cp_groups"
 	actionNameCpCreateGroup       = "cp_create_group"
@@ -87,8 +91,11 @@ func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) err
 
 	e.GET("/cp/login", actionCpLogin).Name = actionNameCpLogin
 	e.POST("/cp/login", actionCpLoginSubmit).Name = actionNameCpLoginSubmit
-	// e.GET("/cp/logout", actionCpLogout).Name = actionNameCpLogout
+	e.GET("/cp/logout", actionCpLogout).Name = actionNameCpLogout
 	e.GET("/cp", actionCpDashboard, middlewareRequiredAuth).Name = actionNameCpDashboard
+	e.GET("/cp/profile", actionCpProfile, middlewareRequiredAuth).Name = actionNameCpProfile
+	e.GET("/cp/changePassword", actionCpChangePassword, middlewareRequiredAuth).Name = actionNameCpChangePassword
+	e.POST("/cp/changePassword", actionCpChangePasswordSubmit, middlewareRequiredAuth).Name = actionNameCpChangePasswordSubmit
 
 	e.GET("/cp/groups", actionCpGroupList, middlewareRequiredAuth).Name = actionNameCpGroups
 	e.GET("/cp/createGroup", actionCpCreateGroup, middlewareRequiredAuth).Name = actionNameCpCreateGroup
@@ -138,7 +145,7 @@ func initDaos() {
 	if adminUser == nil {
 		pwd := "s3cr3t"
 		log.Printf("Admin user [%s] not found, creating one with password [%s]...", AdminUserUsernname, pwd)
-		result, err := userDao.Create(AdminUserUsernname, encryptPassword(AdminUserUsernname, pwd), AdminUserUsernname, SystemGroupId)
+		result, err := userDao.Create(AdminUserUsernname, encryptPassword(AdminUserUsernname, pwd), AdminUserName, SystemGroupId)
 		if err != nil {
 			panic("error while creating user [" + AdminUserUsernname + "]: " + err.Error())
 		}
@@ -300,10 +307,74 @@ end:
 	})
 }
 
+func actionCpLogout(c echo.Context) error {
+	setSessionValue(c, sessionMyUid, nil)
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpDashboard))
+}
+
 func actionCpDashboard(c echo.Context) error {
 	return c.Render(http.StatusOK, namespace+":layout:cp_dashboard", map[string]interface{}{
 		"active":  "dashboard",
 		"osUtils": &OsUtils{},
+	})
+}
+
+func actionCpProfile(c echo.Context) error {
+	return c.Render(http.StatusOK, namespace+":layout:cp_profile", map[string]interface{}{
+		"active": "profile",
+	})
+}
+
+func actionCpChangePassword(c echo.Context) error {
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpProfile))
+}
+
+func actionCpChangePasswordSubmit(c echo.Context) error {
+	var encPwd, currentPwd, pwd, pwd2 string
+	var errMsg string
+	var formData url.Values
+	currentUser, err := getCurrentUser(c)
+	if err != nil {
+		errMsg = myI18n.Text("error_db_101", "current_user/"+err.Error())
+		goto end
+	}
+	if currentUser == nil {
+		// should not happen
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpProfile))
+	}
+
+	formData, err = c.FormParams()
+	if err != nil {
+		errMsg = myI18n.Text("error_form_400", err.Error())
+		goto end
+	}
+	currentPwd = strings.TrimSpace(formData.Get("currentPassword"))
+	encPwd = encryptPassword(currentUser.Username, currentPwd)
+	if encPwd != currentUser.Password {
+		errMsg = myI18n.Text("error_password_not_matched")
+		goto end
+	}
+	pwd = strings.TrimSpace(formData.Get("password"))
+	pwd2 = strings.TrimSpace(formData.Get("password2"))
+	if pwd == "" {
+		errMsg = myI18n.Text("error_empty_user_password")
+		goto end
+	}
+	if pwd != pwd2 {
+		errMsg = myI18n.Text("error_mismatched_passwords")
+		goto end
+	}
+	currentUser.Password = encryptPassword(currentUser.Username, pwd)
+	_, err = userDao.Update(currentUser)
+	if err != nil {
+		errMsg = myI18n.Text("error_update_user", currentUser.Username, err.Error())
+		goto end
+	}
+	addFlashMsg(c, myI18n.Text("change_password_successful"))
+end:
+	return c.Render(http.StatusOK, namespace+":layout:cp_profile", map[string]interface{}{
+		"active": "profile",
+		"error":  errMsg,
 	})
 }
 
