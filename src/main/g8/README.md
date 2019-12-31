@@ -1,10 +1,10 @@
 # $name$
 
-**$desc$** by **$app_author$ - $organization$**, based on [go_echo-microservices-seed.g8](https://github.com/btnguyen2k/go_echo-microservices-seed.g8).
+**$desc$** by **$author$ - $organization$**, based on [go_echo-microservices-seed.g8](https://github.com/btnguyen2k/go_echo-microservices-seed.g8).
 
 Copyright (C) by **$organization$**.
 
-Latest release version: `$app_version$`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `$version$`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 ## Getting Started
 

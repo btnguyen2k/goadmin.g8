@@ -2,7 +2,7 @@
 Package utils provides a utility/helper functions that can be used by the application.
 
 @author Thanh Nguyen <btnguyen2k@gmail.com>
-@since template-v0.1.0
+@since template-v0.4.r1
 */
 package utils
 
