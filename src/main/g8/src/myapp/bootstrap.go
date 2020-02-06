@@ -5,6 +5,7 @@ package myapp
 
 import (
 	"errors"
+	"fmt"
 	"github.com/btnguyen2k/consu/reddo"
 	"github.com/btnguyen2k/prom"
 	"github.com/go-akka/configuration"
@@ -117,11 +118,27 @@ func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) err
 }
 
 func initDaos() {
-	sqlc = newSqliteConnection("./data/sqlite", namespace)
-	sqliteInitTableGroup(sqlc, tableGroup)
-	sqliteInitTableUser(sqlc, tableUser)
+	dbtype := goadmin.AppConfig.GetString(namespace + ".db.type")
+	switch dbtype {
+	case "sqlite":
+		root := goadmin.AppConfig.GetString(namespace+".db.sqlite.root", "./data/sqlite")
+		sqlc = newSqliteConnection(root, namespace)
+		sqliteInitTableGroup(sqlc, sqliteTableGroup)
+		sqliteInitTableUser(sqlc, sqliteTableUser)
+		groupDao = newGroupDaoSqlite(sqlc, sqliteTableGroup)
+		userDao = newUserDaoSqlite(sqlc, sqliteTableUser)
+	case "postgresql", "pgsql", "postgres":
+		url := goadmin.AppConfig.GetString(namespace+".db.pgsql.url", "postgres://test:test@localhost:5432/test")
+		timezone := goadmin.AppConfig.GetString("timezone", "Asia/Ho_Chi_Minh")
+		sqlc = newPgsqlConnection(url, timezone)
+		pgsqlInitTableGroup(sqlc, pgsqlTableGroup)
+		pgsqlInitTableUser(sqlc, pgsqlTableUser)
+		groupDao = newGroupDaoPgsql(sqlc, pgsqlTableGroup)
+		userDao = newUserDaoPgsql(sqlc, pgsqlTableUser)
+	default:
+		panic(fmt.Sprintf("unsupported database type: %s", dbtype))
+	}
 
-	groupDao = newGroupDaoSqlite(sqlc, tableGroup)
 	systemGroup, err := groupDao.Get(SystemGroupId)
 	if err != nil {
 		panic("error while getting group [" + SystemGroupId + "]: " + err.Error())
@@ -137,7 +154,6 @@ func initDaos() {
 		}
 	}
 
-	userDao = newUserDaoSqlite(sqlc, tableUser)
 	adminUser, err := userDao.Get(AdminUserUsernname)
 	if err != nil {
 		panic("error while getting user [" + AdminUserUsernname + "]: " + err.Error())
@@ -341,6 +357,12 @@ func actionCpChangePasswordSubmit(c echo.Context) error {
 	if currentUser == nil {
 		// should not happen
 		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpProfile))
+	}
+
+	// FIXME this is for demo purpose only
+	if currentUser.Username == AdminUserUsernname {
+		errMsg = "Cannot change system admin account's password"
+		goto end
 	}
 
 	formData, err = c.FormParams()
@@ -682,6 +704,9 @@ func checkCpEditUser(c echo.Context) (*User, error) {
 		return nil, errors.New(myI18n.Text("error_db_101", username+"/"+err.Error()))
 	} else if user == nil {
 		return nil, errors.New(myI18n.Text("error_user_not_found", username))
+	} else if username == AdminUserUsernname {
+		// FIXME for demo purpose only
+		return nil, errors.New(fmt.Sprintf("Cannot edit system account account [%s]", username))
 	} else {
 		return user, nil
 	}

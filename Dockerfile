@@ -1,7 +1,7 @@
 ## Sample build command:
-## docker build --force-rm --squash -t demo:0.4.r1 .
+## docker build --force-rm --squash -t goadmin .
 
-FROM golang:1.12-alpine AS builder
+FROM golang:1.13-alpine AS builder
 MAINTAINER Thanh Nguyen <btnguyen2k@gmail.com>
 RUN apk add build-base git \
     && mkdir /build
@@ -14,6 +14,13 @@ RUN rm -rf /build/config/conf.d && mkdir -p /build/config/conf.d \
 COPY ./src/main/g8/config/ /build/config/
 COPY ./src/main/g8/views/ /build/views/
 COPY ./src/main/g8/public/ /build/public/
+#END
+#START naming
+RUN  cd /build \
+    && sed -i 's/\$shortname\$/goadmin/g' config/*.conf \
+    && sed -i 's/\$name\$/GoAdmin/g' config/*.conf \
+    && sed -i 's/\$version\$/0.1.1/g' config/*.conf \
+    && sed -i 's/\$desc\$/AdminCP Giter8 template for GoLang/g' config/*.conf
 #END
 RUN cd /build && go build -o main
 

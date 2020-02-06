@@ -2,7 +2,7 @@
 
 Giter8 template to develop `Admin Control Panel` in Go using Echo framework.
 
-Latest release: [template-v0.4.r1](RELEASE-NOTES.md).
+Latest release: [template-v0.4.r2](RELEASE-NOTES.md).
 
 ## Features
 

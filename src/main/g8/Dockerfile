@@ -1,7 +1,7 @@
 ## Sample build command:
 ## docker build --force-rm --squash -t $shortname$:$version$ .
 
-FROM golang:1.12-alpine AS builder
+FROM golang:1.13-alpine AS builder
 MAINTAINER $author$
 RUN apk add build-base git \
     && mkdir /build

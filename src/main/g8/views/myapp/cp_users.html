@@ -72,7 +72,9 @@
                                         <td>{{.GroupId}}</td>
                                         <td>
                                             <!--access root var using $-->
-                                            <a href="{{.UrlEdit}}" class="fas fa-edit text-primary text-lg" title="{{$.i18n.Text "edit"}}"></a>
+                                            {{if .CanEdit}}
+                                                <a href="{{.UrlEdit}}" class="fas fa-edit text-primary text-lg" title="{{$.i18n.Text "edit"}}"></a>
+                                            {{end}}
                                             {{if .CanDelete}}
                                                 <a href="{{.UrlDelete}}" class="fas fa-trash-alt text-danger text-lg" title="{{$.i18n.Text "delete"}}"></a>
                                             {{end}}

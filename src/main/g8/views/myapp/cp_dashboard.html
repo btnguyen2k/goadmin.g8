@@ -74,7 +74,10 @@
                             <h3 class="card-title" style="font-weight: bold">{{.i18n.Text "groups"}} ({{.appUtils.NumUserGroups}})</h3>
                             <div class="card-tools">
                                 {{if .currentUser.IsSystemUser}}
-                                    <a href="{{call .reverse "cp_create_group"}}" class="fas fa-file btn btn-sm btn-primary"> {{.i18n.Text "create_group"}}</a>
+                                    <a href="{{call .reverse "cp_create_group"}}" class="btn btn-sm btn-primary">
+                                        <span class="icon"><i class="fas fa-plus"></i></span>
+                                        <span class="text">{{.i18n.Text "create_group"}}</span>
+                                    </a>
                                 {{end}}
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -135,7 +138,10 @@
                             <h3 class="card-title" style="font-weight: bold">{{.i18n.Text "users"}} ({{.appUtils.NumUsers}})</h3>
                             <div class="card-tools">
                                 {{if .currentUser.IsSystemUser}}
-                                    <a href="{{call .reverse "cp_create_user"}}" class="fas fa-file btn btn-sm btn-primary"> {{.i18n.Text "create_user"}}</a>
+                                    <a href="{{call .reverse "cp_create_user"}}" class="btn btn-sm btn-primary">
+                                        <span class="icon"><i class="fas fa-plus"></i></span>
+                                        <span class="text">{{.i18n.Text "create_user"}}</span>
+                                    </a>
                                 {{end}}
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                     <i class="fas fa-minus"></i>
@@ -160,7 +166,9 @@
                                         <td>{{.GroupId}}</td>
                                         <td>
                                             <!--access root var using $-->
-                                            <a href="{{.UrlEdit}}" class="fas fa-edit text-primary text-lg" title="{{$.i18n.Text "edit"}}"></a>
+                                            {{if .CanEdit}}
+                                                <a href="{{.UrlEdit}}" class="fas fa-edit text-primary text-lg" title="{{$.i18n.Text "edit"}}"></a>
+                                            {{end}}
                                             {{if .CanDelete}}
                                                 <a href="{{.UrlDelete}}" class="fas fa-trash-alt text-danger text-lg" title="{{$.i18n.Text "delete"}}"></a>
                                             {{end}}

@@ -1,40 +1,42 @@
 package myapp
 
+// @availabble since template-v0.4.r2
+
 import (
 	"fmt"
 	"github.com/btnguyen2k/consu/reddo"
 	"github.com/btnguyen2k/godal"
 	"github.com/btnguyen2k/godal/sql"
 	"github.com/btnguyen2k/prom"
-	_ "github.com/mattn/go-sqlite3"
-	"os"
+	_ "github.com/lib/pq"
 	"strings"
+	"time"
 )
 
-func newSqliteConnection(dir, dbName string) *prom.SqlConnect {
-	err := os.MkdirAll(dir, 0711)
+func newPgsqlConnection(url, timezone string) *prom.SqlConnect {
+	driver := "postgres"
+	sqlConnect, err := prom.NewSqlConnect(driver, url, 10000, nil)
 	if err != nil {
 		panic(err)
 	}
-	sqlc, err := prom.NewSqlConnect("sqlite3", dir+"/"+dbName+".db", 10000, nil)
-	if err != nil {
-		panic(err)
-	}
-	return sqlc
+	loc, _ := time.LoadLocation(timezone)
+	sqlConnect.SetLocation(loc)
+	sqlConnect.SetDbFlavor(prom.FlavorPgSql)
+	return sqlConnect
 }
 
-func sqliteInitTableGroup(sqlc *prom.SqlConnect, tableName string) {
+func pgsqlInitTableGroup(sqlc *prom.SqlConnect, tableName string) {
 	sql := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (%s VARCHAR(64), %s VARCHAR(255), PRIMARY KEY (%s))",
-		tableName, sqliteColGroupId, sqliteColGroupName, sqliteColGroupId)
+		tableName, pgsqlColGroupId, pgsqlColGroupName, pgsqlColGroupId)
 	_, err := sqlc.GetDB().Exec(sql)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func sqliteInitTableUser(sqlc *prom.SqlConnect, tableName string) {
+func pgsqlInitTableUser(sqlc *prom.SqlConnect, tableName string) {
 	sql := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s (%s VARCHAR(64), %s VARCHAR(64), %s VARCHAR(64), %s VARCHAR(64), PRIMARY KEY (%s))",
-		tableName, sqliteColUserUsername, sqliteColUserPassword, sqliteColUserName, sqliteColUserGroupId, sqliteColUserUsername)
+		tableName, pgsqlColUserUsername, pgsqlColUserPassword, pgsqlColUserName, pgsqlColUserGroupId, pgsqlColUserUsername)
 	_, err := sqlc.GetDB().Exec(sql)
 	if err != nil {
 		panic(err)
@@ -43,44 +45,45 @@ func sqliteInitTableUser(sqlc *prom.SqlConnect, tableName string) {
 
 /*----------------------------------------------------------------------*/
 
-func newUserDaoSqlite(sqlc *prom.SqlConnect, tableName string) UserDao {
-	dao := &UserDaoSqlite{tableName: tableName}
+func newUserDaoPgsql(sqlc *prom.SqlConnect, tableName string) UserDao {
+	dao := &UserDaoPgsql{tableName: tableName}
 	dao.GenericDaoSql = sql.NewGenericDaoSql(sqlc, godal.NewAbstractGenericDao(dao))
 	dao.SetRowMapper(&sql.GenericRowMapperSql{
 		NameTransformation:          sql.NameTransfLowerCase,
-		GboFieldToColNameTranslator: map[string]map[string]interface{}{tableName: sqliteMapFieldToColNameUser},
-		ColNameToGboFieldTranslator: map[string]map[string]interface{}{tableName: sqliteMapColNameToFieldUser},
-		ColumnsListMap:              map[string][]string{tableName: sqliteColsUser},
+		GboFieldToColNameTranslator: map[string]map[string]interface{}{tableName: pgsqlMapFieldToColNameUser},
+		ColNameToGboFieldTranslator: map[string]map[string]interface{}{tableName: pgsqlMapColNameToFieldUser},
+		ColumnsListMap:              map[string][]string{tableName: pgsqlColsUser},
 	})
+	dao.SetSqlFlavor(prom.FlavorPgSql)
 	return dao
 }
 
 const (
-	sqliteTableUser       = namespace + "_user"
-	sqliteColUserUsername = "uname"
-	sqliteColUserPassword = "upwd"
-	sqliteColUserName     = "display_name"
-	sqliteColUserGroupId  = "gid"
+	pgsqlTableUser       = namespace + "_user"
+	pgsqlColUserUsername = "uname"
+	pgsqlColUserPassword = "upwd"
+	pgsqlColUserName     = "display_name"
+	pgsqlColUserGroupId  = "gid"
 )
 
 var (
-	sqliteColsUser              = []string{sqliteColUserUsername, sqliteColUserPassword, sqliteColUserName, sqliteColUserGroupId}
-	sqliteMapFieldToColNameUser = map[string]interface{}{fieldUserUsername: sqliteColUserUsername, fieldUserPassword: sqliteColUserPassword, fieldUserName: sqliteColUserName, fieldUserGroupId: sqliteColUserGroupId}
-	sqliteMapColNameToFieldUser = map[string]interface{}{sqliteColUserUsername: fieldUserUsername, sqliteColUserPassword: fieldUserPassword, sqliteColUserName: fieldUserName, sqliteColUserGroupId: fieldUserGroupId}
+	pgsqlColsUser              = []string{pgsqlColUserUsername, pgsqlColUserPassword, pgsqlColUserName, pgsqlColUserGroupId}
+	pgsqlMapFieldToColNameUser = map[string]interface{}{fieldUserUsername: pgsqlColUserUsername, fieldUserPassword: pgsqlColUserPassword, fieldUserName: pgsqlColUserName, fieldUserGroupId: pgsqlColUserGroupId}
+	pgsqlMapColNameToFieldUser = map[string]interface{}{pgsqlColUserUsername: fieldUserUsername, pgsqlColUserPassword: fieldUserPassword, pgsqlColUserName: fieldUserName, pgsqlColUserGroupId: fieldUserGroupId}
 )
 
-type UserDaoSqlite struct {
+type UserDaoPgsql struct {
 	*sql.GenericDaoSql
 	tableName string
 }
 
 // GdaoCreateFilter implements IGenericDao.GdaoCreateFilter
-func (dao *UserDaoSqlite) GdaoCreateFilter(_ string, bo godal.IGenericBo) interface{} {
-	return map[string]interface{}{sqliteColUserUsername: bo.GboGetAttrUnsafe(fieldUserUsername, reddo.TypeString)}
+func (dao *UserDaoPgsql) GdaoCreateFilter(_ string, bo godal.IGenericBo) interface{} {
+	return map[string]interface{}{pgsqlColUserUsername: bo.GboGetAttrUnsafe(fieldUserUsername, reddo.TypeString)}
 }
 
 // it is recommended to have a function that transforms godal.IGenericBo to business object and vice versa.
-func (dao *UserDaoSqlite) toBo(gbo godal.IGenericBo) *User {
+func (dao *UserDaoPgsql) toBo(gbo godal.IGenericBo) *User {
 	if gbo == nil {
 		return nil
 	}
@@ -94,7 +97,7 @@ func (dao *UserDaoSqlite) toBo(gbo godal.IGenericBo) *User {
 }
 
 // it is recommended to have a function that transforms godal.IGenericBo to business object and vice versa.
-func (dao *UserDaoSqlite) toGbo(bo *User) godal.IGenericBo {
+func (dao *UserDaoPgsql) toGbo(bo *User) godal.IGenericBo {
 	if bo == nil {
 		return nil
 	}
@@ -107,13 +110,13 @@ func (dao *UserDaoSqlite) toGbo(bo *User) godal.IGenericBo {
 }
 
 // Delete implements UserDao.Delete
-func (dao *UserDaoSqlite) Delete(bo *User) (bool, error) {
+func (dao *UserDaoPgsql) Delete(bo *User) (bool, error) {
 	numRows, err := dao.GdaoDelete(dao.tableName, dao.toGbo(bo))
 	return numRows > 0, err
 }
 
 // Get implements UserDao.Create
-func (dao *UserDaoSqlite) Create(username, encryptedPassword, name, groupId string) (bool, error) {
+func (dao *UserDaoPgsql) Create(username, encryptedPassword, name, groupId string) (bool, error) {
 	bo := &User{
 		Username: strings.ToLower(strings.TrimSpace(username)),
 		Password: strings.TrimSpace(encryptedPassword),
@@ -125,8 +128,8 @@ func (dao *UserDaoSqlite) Create(username, encryptedPassword, name, groupId stri
 }
 
 // Get implements UserDao.Get
-func (dao *UserDaoSqlite) Get(username string) (*User, error) {
-	gbo, err := dao.GdaoFetchOne(dao.tableName, map[string]interface{}{sqliteColUserUsername: username})
+func (dao *UserDaoPgsql) Get(username string) (*User, error) {
+	gbo, err := dao.GdaoFetchOne(dao.tableName, map[string]interface{}{pgsqlColUserUsername: username})
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +137,7 @@ func (dao *UserDaoSqlite) Get(username string) (*User, error) {
 }
 
 // GetN implements UserDao.GetN
-func (dao *UserDaoSqlite) GetN(fromOffset, maxNumRows int) ([]*User, error) {
+func (dao *UserDaoPgsql) GetN(fromOffset, maxNumRows int) ([]*User, error) {
 	gboList, err := dao.GdaoFetchMany(dao.tableName, nil, nil, fromOffset, maxNumRows)
 	if err != nil {
 		return nil, err
@@ -148,54 +151,55 @@ func (dao *UserDaoSqlite) GetN(fromOffset, maxNumRows int) ([]*User, error) {
 }
 
 // GetAll implements UserDao.GetAll
-func (dao *UserDaoSqlite) GetAll() ([]*User, error) {
+func (dao *UserDaoPgsql) GetAll() ([]*User, error) {
 	return dao.GetN(0, 0)
 }
 
 // Update implements UserDao.Update
-func (dao *UserDaoSqlite) Update(bo *User) (bool, error) {
+func (dao *UserDaoPgsql) Update(bo *User) (bool, error) {
 	numRows, err := dao.GdaoUpdate(dao.tableName, dao.toGbo(bo))
 	return numRows > 0, err
 }
 
 /*----------------------------------------------------------------------*/
 
-func newGroupDaoSqlite(sqlc *prom.SqlConnect, tableName string) GroupDao {
-	dao := &GroupDaoSqlite{tableName: tableName}
+func newGroupDaoPgsql(sqlc *prom.SqlConnect, tableName string) GroupDao {
+	dao := &GroupDaoPgsql{tableName: tableName}
 	dao.GenericDaoSql = sql.NewGenericDaoSql(sqlc, godal.NewAbstractGenericDao(dao))
 	dao.SetRowMapper(&sql.GenericRowMapperSql{
 		NameTransformation:          sql.NameTransfLowerCase,
-		GboFieldToColNameTranslator: map[string]map[string]interface{}{tableName: sqliteMapFieldToColNameGroup},
-		ColNameToGboFieldTranslator: map[string]map[string]interface{}{tableName: sqliteMapColNameToFieldGroup},
-		ColumnsListMap:              map[string][]string{tableName: sqliteColsGroup},
+		GboFieldToColNameTranslator: map[string]map[string]interface{}{tableName: pgsqlMapFieldToColNameGroup},
+		ColNameToGboFieldTranslator: map[string]map[string]interface{}{tableName: pgsqlMapColNameToFieldGroup},
+		ColumnsListMap:              map[string][]string{tableName: pgsqlColsGroup},
 	})
+	dao.SetSqlFlavor(prom.FlavorPgSql)
 	return dao
 }
 
 const (
-	sqliteTableGroup   = namespace + "_group"
-	sqliteColGroupId   = "gid"
-	sqliteColGroupName = "gname"
+	pgsqlTableGroup   = namespace + "_group"
+	pgsqlColGroupId   = "gid"
+	pgsqlColGroupName = "gname"
 )
 
 var (
-	sqliteColsGroup              = []string{sqliteColGroupId, sqliteColGroupName}
-	sqliteMapFieldToColNameGroup = map[string]interface{}{fieldGroupId: sqliteColGroupId, fieldGroupName: sqliteColGroupName}
-	sqliteMapColNameToFieldGroup = map[string]interface{}{sqliteColGroupId: fieldGroupId, sqliteColGroupName: fieldGroupName}
+	pgsqlColsGroup              = []string{pgsqlColGroupId, pgsqlColGroupName}
+	pgsqlMapFieldToColNameGroup = map[string]interface{}{fieldGroupId: pgsqlColGroupId, fieldGroupName: pgsqlColGroupName}
+	pgsqlMapColNameToFieldGroup = map[string]interface{}{pgsqlColGroupId: fieldGroupId, pgsqlColGroupName: fieldGroupName}
 )
 
-type GroupDaoSqlite struct {
+type GroupDaoPgsql struct {
 	*sql.GenericDaoSql
 	tableName string
 }
 
 // GdaoCreateFilter implements IGenericDao.GdaoCreateFilter
-func (dao *GroupDaoSqlite) GdaoCreateFilter(_ string, bo godal.IGenericBo) interface{} {
-	return map[string]interface{}{sqliteColGroupId: bo.GboGetAttrUnsafe(fieldGroupId, reddo.TypeString)}
+func (dao *GroupDaoPgsql) GdaoCreateFilter(_ string, bo godal.IGenericBo) interface{} {
+	return map[string]interface{}{pgsqlColGroupId: bo.GboGetAttrUnsafe(fieldGroupId, reddo.TypeString)}
 }
 
 // it is recommended to have a function that transforms godal.IGenericBo to business object and vice versa.
-func (dao *GroupDaoSqlite) toBo(gbo godal.IGenericBo) *Group {
+func (dao *GroupDaoPgsql) toBo(gbo godal.IGenericBo) *Group {
 	if gbo == nil {
 		return nil
 	}
@@ -207,7 +211,7 @@ func (dao *GroupDaoSqlite) toBo(gbo godal.IGenericBo) *Group {
 }
 
 // it is recommended to have a function that transforms godal.IGenericBo to business object and vice versa.
-func (dao *GroupDaoSqlite) toGbo(bo *Group) godal.IGenericBo {
+func (dao *GroupDaoPgsql) toGbo(bo *Group) godal.IGenericBo {
 	if bo == nil {
 		return nil
 	}
@@ -218,13 +222,13 @@ func (dao *GroupDaoSqlite) toGbo(bo *Group) godal.IGenericBo {
 }
 
 // Delete implements GroupDao.Delete
-func (dao *GroupDaoSqlite) Delete(bo *Group) (bool, error) {
+func (dao *GroupDaoPgsql) Delete(bo *Group) (bool, error) {
 	numRows, err := dao.GdaoDelete(dao.tableName, dao.toGbo(bo))
 	return numRows > 0, err
 }
 
 // Get implements GroupDao.Create
-func (dao *GroupDaoSqlite) Create(id, name string) (bool, error) {
+func (dao *GroupDaoPgsql) Create(id, name string) (bool, error) {
 	bo := &Group{
 		Id:   strings.ToLower(strings.TrimSpace(id)),
 		Name: strings.TrimSpace(name),
@@ -234,8 +238,8 @@ func (dao *GroupDaoSqlite) Create(id, name string) (bool, error) {
 }
 
 // Get implements GroupDao.Get
-func (dao *GroupDaoSqlite) Get(id string) (*Group, error) {
-	gbo, err := dao.GdaoFetchOne(dao.tableName, map[string]interface{}{sqliteColGroupId: id})
+func (dao *GroupDaoPgsql) Get(id string) (*Group, error) {
+	gbo, err := dao.GdaoFetchOne(dao.tableName, map[string]interface{}{pgsqlColGroupId: id})
 	if err != nil {
 		return nil, err
 	}
@@ -243,7 +247,7 @@ func (dao *GroupDaoSqlite) Get(id string) (*Group, error) {
 }
 
 // GetN implements GroupDao.GetN
-func (dao *GroupDaoSqlite) GetN(fromOffset, maxNumRows int) ([]*Group, error) {
+func (dao *GroupDaoPgsql) GetN(fromOffset, maxNumRows int) ([]*Group, error) {
 	gboList, err := dao.GdaoFetchMany(dao.tableName, nil, nil, fromOffset, maxNumRows)
 	if err != nil {
 		return nil, err
@@ -257,12 +261,12 @@ func (dao *GroupDaoSqlite) GetN(fromOffset, maxNumRows int) ([]*Group, error) {
 }
 
 // GetAll implements GroupDao.GetAll
-func (dao *GroupDaoSqlite) GetAll() ([]*Group, error) {
+func (dao *GroupDaoPgsql) GetAll() ([]*Group, error) {
 	return dao.GetN(0, 0)
 }
 
 // Update implements GroupDao.Update
-func (dao *GroupDaoSqlite) Update(bo *Group) (bool, error) {
+func (dao *GroupDaoPgsql) Update(bo *Group) (bool, error) {
 	numRows, err := dao.GdaoUpdate(dao.tableName, dao.toGbo(bo))
 	return numRows > 0, err
 }

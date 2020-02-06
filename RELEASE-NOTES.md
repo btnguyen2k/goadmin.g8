@@ -1,5 +1,13 @@
 # goadmin.g8 Release Notes
 
+## 2020-02-06: template-v0.4.r2
+
+- PostgreSQL implementation of BO & DAO.
+- Reduce size of `public` directory.
+- (for demo purpose) Changing password and modifying of system admin account are disabled.
+- CircleCI config file to build demo site on Heroku.
+
+
 ## 2019-12-30: template-v0.4.r1
 
 - `Echo v4.1.x`.

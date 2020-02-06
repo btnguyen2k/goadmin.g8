@@ -68,6 +68,11 @@ func (m *UserModel) CanDelete() bool {
 	return m.Username != AdminUserUsernname
 }
 
+func (m *UserModel) CanEdit() bool {
+	// cannot edit system-user
+	return m.Username != AdminUserUsernname
+}
+
 func (m *UserModel) UrlDelete() string {
 	return m.c.Echo().Reverse(actionNameCpDeleteUser) + "?u=" + m.Username
 }
