@@ -1,0 +1,60 @@
+# CircleCI 2.0 configuration file to build & deploy demo on Heroku
+version: 2
+jobs:
+  build_docker_image:
+    docker:
+      - image: circleci/golang:1.13
+    working_directory: /go/src/github.com/btnguyen2k/goadmin.g8
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image
+          command: cd src/main/g8 && docker build --force-rm -t goadmin -f Dockerfile.local .
+            && cd ../../../ && mkdir caches && docker save -o caches/docker_cache.tar goadmin
+            && docker images
+      - persist_to_workspace:
+          root: caches
+          paths:
+            - docker_cache.tar
+  push_docker_image:
+    docker:
+      - image: circleci/golang:1.13
+    steps:
+      - setup_remote_docker
+      - attach_workspace:
+          at: caches
+      - run:
+          name: Login Docker Registry
+          command: echo $DOCKER_REGISTRY_PASSWORD | docker login -u $DOCKER_REGISTRY_USER --password-stdin $DOCKER_REGISTRY_SERVER
+      - run:
+          name: Push Docker Image
+          command: docker load -i caches/docker_cache.tar
+            && docker tag goadmin ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/demo-goadmin/web
+            && docker images
+            && docker push ${DOCKER_REGISTRY_SERVER}${DOCKER_REGISTRY_NAMESPACE}/demo-goadmin/web
+  release_demo:
+    docker:
+      - image: circleci/golang:1.13
+    steps:
+      - run:
+          name: Install Heroku CLI
+          command: curl https://cli-assets.heroku.com/install.sh | sh
+      - run:
+          name: Release Heroku App
+          command: heroku container:release web -a demo-goadmin
+workflows:
+  version: 2
+  build_docker_image_and_release:
+    jobs:
+      - build_docker_image
+      - hold_for_approval:
+          type: approval
+          requires:
+            - build_docker_image
+      - push_docker_image:
+          requires:
+            - hold_for_approval
+      - release_demo:
+          requires:
+            - push_docker_image
