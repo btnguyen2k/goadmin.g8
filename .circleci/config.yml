@@ -10,7 +10,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build Docker Image
-          command: cd src/main/g8 && docker build --force-rm -t goadmin -f Dockerfile.local .
+          command: cd src/main/g8 && docker build --force-rm -t goadmin .
             && cd ../../../ && mkdir caches && docker save -o caches/docker_cache.tar goadmin
             && docker images
       - persist_to_workspace:
