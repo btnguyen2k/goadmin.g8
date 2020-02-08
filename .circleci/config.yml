@@ -48,13 +48,13 @@ workflows:
   build_docker_image_and_release:
     jobs:
       - build_docker_image
-      - hold_for_approval:
-          type: approval
-          requires:
-            - build_docker_image
+#      - hold_for_approval:
+#          type: approval
+#          requires:
+#            - build_docker_image
       - push_docker_image:
           requires:
-            - hold_for_approval
+            - build_docker_image
       - release_demo:
           requires:
             - push_docker_image

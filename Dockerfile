@@ -19,7 +19,7 @@ COPY ./src/main/g8/public/ /build/public/
 RUN  cd /build \
     && sed -i 's/\$shortname\$/goadmin/g' config/*.conf \
     && sed -i 's/\$name\$/GoAdmin/g' config/*.conf \
-    && sed -i 's/\$version\$/0.1.1/g' config/*.conf \
+    && export BUILD=`date +%Y%m%d%H` && sed -i 's/\$version\$/0.1.1b'$BUILD/g config/*.conf \
     && sed -i 's/\$desc\$/AdminCP Giter8 template for GoLang/g' config/*.conf
 #END
 RUN cd /build && go build -o main

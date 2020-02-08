@@ -38,7 +38,8 @@
 
             <form action="{{call .reverse "cp_login_submit"}}" method="post">
                 <div class="input-group mb-3">
-                    <input type="text" name="username" class="form-control" placeholder="{{.i18n.Text "username"}}" value="{{.form.Get "username"}}">
+                    <input type="text" name="username" class="form-control" placeholder="{{.i18n.Text "username"}}"
+                           value="{{.form.Get "username"}}">
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-user"></span>
@@ -84,18 +85,24 @@
             </p>
         </div>
     </div>
+    <p class="small">
+        This is instance is for <em>demo purpose</em> only. Login with administrator account <strong>admin/s3cr3t</strong>. You can
+        create/edit/delete other user group or user account. This special admin account, however, can not be modified or
+        deleted.
+    </p>
 </div>
 
+
 {{if .cdn_mode}}
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
 {{else}}
-    <!-- jQuery -->
-    <script src="{{.static}}/adminlte-3.0.1/plugins/jquery/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="{{.static}}/adminlte-3.0.1/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- jQuery -->
+<script src="{{.static}}/adminlte-3.0.1/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="{{.static}}/adminlte-3.0.1/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 {{end}}
 <script src="{{.static}}/adminlte-3.0.1/dist/js/adminlte.min.js"></script>
 
