@@ -12,7 +12,8 @@ require (
 	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/gorilla/sessions v1.2.0
 	github.com/labstack/echo-contrib v0.8.0
-	github.com/labstack/echo/v4 v4.1.14
+	github.com/labstack/echo/v4 v4.9.0
+	github.com/lib/pq v1.2.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/shirou/gopsutil v2.20.1+incompatible
 )
