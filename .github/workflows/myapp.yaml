@@ -20,10 +20,11 @@ jobs:
     - name: Test
       run: |
         export TIMEZONE="Asia/Ho_Chi_Minh"
+        cd ./src/main/g8
         mkdir -p ./temp
         export SQLITE_DRIVER="sqlite3"
         export SQLITE_URL="./temp/temp.db"
-        go test -v -count 1 -p 1 -cover -coverprofile=coverage_sqlite.txt ./src/main/g8/src/myapp/
+        go test -v -count 1 -p 1 -cover -coverprofile=coverage_sqlite.txt ./src/myapp/
     - name: Codecov
       uses: codecov/codecov-action@v3
       with:
