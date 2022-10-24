@@ -24,6 +24,7 @@ jobs:
         export TIMEZONE="Asia/Ho_Chi_Minh"
         export PGSQL_DRIVER="pgx"
         export PGSQL_URL="postgres://test:test@localhost:5432/test?sslmode=disable&client_encoding=UTF-8&application_name=godal"
+        cd ./src/main/g8
         go test -v -count 1 -p 1 -cover -coverprofile=coverage_pgsql.txt ./src/myapp/
     - name: Codecov
       uses: codecov/codecov-action@v3
@@ -47,7 +48,7 @@ jobs:
         cd ./src/main/g8
         mkdir -p ./temp
         export SQLITE_DRIVER="sqlite3"
-        export SQLITE_URL="./temp/temp.db"
+        export SQLITE_URL="$(pwd)/temp/temp.db"
         ls -l
         go test -v -count 1 -p 1 -cover -coverprofile=coverage_sqlite.txt ./src/myapp/
     - name: Codecov
