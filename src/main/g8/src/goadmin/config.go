@@ -1,13 +1,14 @@
 package goadmin
 
 import (
-	hoconf "github.com/go-akka/configuration"
-	"github.com/go-akka/configuration/hocon"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
+
+	hoconf "github.com/go-akka/configuration"
+	"github.com/go-akka/configuration/hocon"
 )
 
 func loadAppConfig(file string) *hoconf.Config {
@@ -26,7 +27,6 @@ func loadAppConfig(file string) *hoconf.Config {
 		panic(err)
 	} else {
 		return hoconf.ParseString(string(data), myIncludeCallback)
-		// return hocon.LoadConfig(confFile)
 	}
 }
 

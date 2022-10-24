@@ -18,3 +18,5 @@
 /.env
 /vendor
 /data
+/temp/
+/coverage.txt

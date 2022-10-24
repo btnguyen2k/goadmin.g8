@@ -1,6 +1,6 @@
 # $name$
 
-**$desc$** by **$author$ - $organization$**, based on [go_echo-microservices-seed.g8](https://github.com/btnguyen2k/go_echo-microservices-seed.g8).
+**$desc$** by **$author$ - $organization$**, based on [Go Admin template](https://github.com/btnguyen2k/goadmin.g8).
 
 Copyright (C) by **$organization$**.
 

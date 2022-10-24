@@ -2,16 +2,17 @@ package goadmin
 
 import (
 	"fmt"
-	hocon "github.com/go-akka/configuration"
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"log"
-	"main/src/utils"
 	"os"
 	"strings"
 	"time"
+
+	hocon "github.com/go-akka/configuration"
+	"github.com/labstack/echo-contrib/session"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"main/src/cocostore"
+	"main/src/utils"
 )
 
 const (
@@ -28,9 +29,7 @@ var (
 	echoServerListenPort int32
 )
 
-/*
-Start bootstraps the application.
-*/
+// Start bootstraps the application.
 func Start(bootstrappers ...IBootstrapper) {
 	var err error
 
@@ -88,8 +87,9 @@ func initEchoServer() (*echo.Echo, string, int32) {
 	e := echo.New()
 
 	// register session middleware
-	sessionKey := AppConfig.GetString("session_key", "s3cr3t_s3ssion_2uth3ntic2tion_k3y")
-	e.Use(session.Middleware(sessions.NewCookieStore([]byte(sessionKey))))
+	sessionKey := AppConfig.GetString("goadmin.session_key", "s3cr3t_s3ssion_2uth3ntic2tion_k3y")
+	// e.Use(session.Middleware(sessions.NewCookieStore([]byte(sessionKey))))
+	e.Use(session.Middleware(cocostore.NewCompressedCookieStore(cocostore.CompressionLevelBestCompression, []byte(sessionKey))))
 
 	requestTimeout := AppConfig.GetTimeDuration("http.request_timeout", time.Duration(0))
 	if requestTimeout > 0 {

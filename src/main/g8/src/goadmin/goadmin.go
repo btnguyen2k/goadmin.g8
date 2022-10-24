@@ -1,5 +1,5 @@
 /*
-Package goadmin provides a base skeleton to bootstrap the micro-service application.
+Package goadmin provides a base skeleton to bootstrap the application.
 The actual application's implementation should be placed under its own package name.
 
 @author Thanh Nguyen <btnguyen2k@gmail.com>
@@ -9,5 +9,5 @@ package goadmin
 
 const (
 	// Version of goadmin
-	Version = "0.4.r1"
+	Version = "r3"
 )
