@@ -8,7 +8,7 @@ RUN apk add build-base git \
 COPY . /build
 RUN cd /build && go build -o main
 
-FROM alpine:3.10
+FROM alpine:3
 RUN mkdir /app
 COPY --from=builder /build/main /app/main
 COPY --from=builder /build/config /app/config
