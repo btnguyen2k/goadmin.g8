@@ -14,7 +14,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: 1.13
+        go-version: "1.15"
     - name: Check out code
       uses: actions/checkout@v2
     - name: Start MongoDB Standalone server
@@ -39,7 +39,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: 1.13
+        go-version: "1.15"
     - name: Check out code
       uses: actions/checkout@v2
     - name: Start MongoDB Standalone server
@@ -64,7 +64,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: 1.13
+        go-version: "1.15"
     - name: Check out code
       uses: actions/checkout@v2
     - name: Start MySQL server
@@ -96,7 +96,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: 1.13
+        go-version: "1.15"
     - name: Check out code
       uses: actions/checkout@v2
     - name: Start PostgreSQL server
@@ -121,7 +121,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: 1.13
+        go-version: "1.15"
     - name: Check out code
       uses: actions/checkout@v2
     - name: Test
@@ -146,11 +146,11 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: 1.13
+        go-version: "1.15"
     - name: Install go-giter8
       run: |
         # minimum go-giter8 v0.5.1 for "quiet" mode
-        go install github.com/btnguyen2k/go-giter8/g8@v0.5.1
+        export GO111MODULE=on && go install github.com/btnguyen2k/go-giter8/g8@v0.5.1
     - name: Check out code
       uses: actions/checkout@v2
     - name: Temp
