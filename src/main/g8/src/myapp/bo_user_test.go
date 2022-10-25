@@ -11,10 +11,24 @@ import (
 )
 
 var (
-	testSqlTableNameUser = "test_user"
+	testSqlTableNameUser        = "test_user"
+	testMongoCollectionNameUser = "test_user"
 )
 
-func _initUserDao(driver, url, tableName string, flavor sql.DbFlavor) UserDao {
+func _initUserDaoMongo(url, db, collectionName string) UserDao {
+	mc, err := _newMongoConnect(url, db)
+	if err != nil {
+		panic(err)
+	}
+	if mc == nil {
+		return nil
+	}
+	mc.DropCollection(collectionName)
+	mongoInitCollectionUser(mc, collectionName)
+	return newUserDaoMongo(mc, collectionName)
+}
+
+func _initUserDaoSql(driver, url, tableName string, flavor sql.DbFlavor) UserDao {
 	sqlc, err := _newSqlConnect(driver, url, testTimeZone, flavor)
 	if err != nil || sqlc == nil {
 		return nil
@@ -24,6 +38,10 @@ func _initUserDao(driver, url, tableName string, flavor sql.DbFlavor) UserDao {
 		sqlc.GetDB().Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", tableName))
 		sqliteInitTableUser(sqlc, tableName)
 		return newUserDaoSqlite(sqlc, tableName)
+	case sql.FlavorMySql:
+		sqlc.GetDB().Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", tableName))
+		mysqlInitTableUser(sqlc, tableName)
+		return newUserDaoMysql(sqlc, tableName)
 	case sql.FlavorPgSql:
 		sqlc.GetDB().Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", tableName))
 		pgsqlInitTableUser(sqlc, tableName)

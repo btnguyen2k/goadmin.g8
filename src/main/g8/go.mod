@@ -8,6 +8,7 @@ require (
 	github.com/btnguyen2k/godal v0.6.1
 	github.com/btnguyen2k/prom v0.4.1
 	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gorilla/securecookie v1.1.1
 	github.com/gorilla/sessions v1.2.1
 	github.com/jackc/pgx/v4 v4.17.2

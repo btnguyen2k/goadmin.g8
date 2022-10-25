@@ -9,10 +9,24 @@ import (
 )
 
 var (
-	testSqlTableNameGroup = "test_group"
+	testSqlTableNameGroup        = "test_group"
+	testMongoCollectionNameGroup = "test_group"
 )
 
-func _initGroupDao(driver, url, tableName string, flavor sql.DbFlavor) GroupDao {
+func _initGroupDaoMongo(url, db, collectionName string) GroupDao {
+	mc, err := _newMongoConnect(url, db)
+	if err != nil {
+		panic(err)
+	}
+	if mc == nil {
+		return nil
+	}
+	mc.DropCollection(collectionName)
+	mongoInitCollectionGroup(mc, collectionName)
+	return newGroupDaoMongo(mc, collectionName)
+}
+
+func _initGroupDaoSql(driver, url, tableName string, flavor sql.DbFlavor) GroupDao {
 	sqlc, err := _newSqlConnect(driver, url, testTimeZone, flavor)
 	if err != nil {
 		panic(err)
@@ -25,6 +39,10 @@ func _initGroupDao(driver, url, tableName string, flavor sql.DbFlavor) GroupDao 
 		sqlc.GetDB().Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", tableName))
 		sqliteInitTableGroup(sqlc, tableName)
 		return newGroupDaoSqlite(sqlc, tableName)
+	case sql.FlavorMySql:
+		sqlc.GetDB().Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", tableName))
+		mysqlInitTableGroup(sqlc, tableName)
+		return newGroupDaoMysql(sqlc, tableName)
 	case sql.FlavorPgSql:
 		sqlc.GetDB().Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s", tableName))
 		pgsqlInitTableGroup(sqlc, tableName)

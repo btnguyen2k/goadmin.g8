@@ -9,7 +9,7 @@ import (
 
 func TestGroupDaoSqlite_GetNotExists(t *testing.T) {
 	testName := "TestGroupDaoSqlite_GetNotExists"
-	dao := _initGroupDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initGroupDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -19,7 +19,7 @@ func TestGroupDaoSqlite_GetNotExists(t *testing.T) {
 
 func TestGroupDaoSqlite_CreateGet(t *testing.T) {
 	testName := "TestGroupDaoSqlite_CreateGet"
-	dao := _initGroupDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initGroupDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -29,7 +29,7 @@ func TestGroupDaoSqlite_CreateGet(t *testing.T) {
 
 func TestGroupDaoSqlite_DeleteNotExists(t *testing.T) {
 	testName := "TestGroupDaoSqlite_DeleteNotExists"
-	dao := _initGroupDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initGroupDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -39,7 +39,7 @@ func TestGroupDaoSqlite_DeleteNotExists(t *testing.T) {
 
 func TestGroupDaoSqlite_CreateDelete(t *testing.T) {
 	testName := "TestGroupDaoSqlite_CreateDelete"
-	dao := _initGroupDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initGroupDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -49,7 +49,7 @@ func TestGroupDaoSqlite_CreateDelete(t *testing.T) {
 
 func TestGroupDaoSqlite_UpdateNotExists(t *testing.T) {
 	testName := "TestGroupDaoSqlite_UpdateNotExists"
-	dao := _initGroupDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initGroupDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -59,7 +59,7 @@ func TestGroupDaoSqlite_UpdateNotExists(t *testing.T) {
 
 func TestGroupDaoSqlite_CreateUpdate(t *testing.T) {
 	testName := "TestGroupDaoSqlite_CreateUpdate"
-	dao := _initGroupDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initGroupDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -69,7 +69,7 @@ func TestGroupDaoSqlite_CreateUpdate(t *testing.T) {
 
 func TestGroupDaoSqlite_GetN(t *testing.T) {
 	testName := "TestGroupDaoSqlite_GetN"
-	dao := _initGroupDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initGroupDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -79,7 +79,7 @@ func TestGroupDaoSqlite_GetN(t *testing.T) {
 
 func TestGroupDaoSqlite_GetAll(t *testing.T) {
 	testName := "TestGroupDaoSqlite_GetAll"
-	dao := _initGroupDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initGroupDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -91,7 +91,7 @@ func TestGroupDaoSqlite_GetAll(t *testing.T) {
 
 func TestUserDaoSqlite_GetNotExists(t *testing.T) {
 	testName := "TestUserDaoSqlite_GetNotExists"
-	dao := _initUserDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initUserDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -101,7 +101,7 @@ func TestUserDaoSqlite_GetNotExists(t *testing.T) {
 
 func TestUserDaoSqlite_CreateGet(t *testing.T) {
 	testName := "TestUserDaoSqlite_CreateGet"
-	dao := _initUserDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initUserDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -111,7 +111,7 @@ func TestUserDaoSqlite_CreateGet(t *testing.T) {
 
 func TestUserDaoSqlite_DeleteNotExists(t *testing.T) {
 	testName := "TestUserDaoSqlite_DeleteNotExists"
-	dao := _initUserDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initUserDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -121,7 +121,7 @@ func TestUserDaoSqlite_DeleteNotExists(t *testing.T) {
 
 func TestUserDaoSqlite_CreateDelete(t *testing.T) {
 	testName := "TestUserDaoSqlite_CreateDelete"
-	dao := _initUserDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initUserDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -131,7 +131,7 @@ func TestUserDaoSqlite_CreateDelete(t *testing.T) {
 
 func TestUserDaoSqlite_UpdateNotExists(t *testing.T) {
 	testName := "TestUserDaoSqlite_UpdateNotExists"
-	dao := _initUserDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initUserDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -141,7 +141,7 @@ func TestUserDaoSqlite_UpdateNotExists(t *testing.T) {
 
 func TestUserDaoSqlite_CreateUpdate(t *testing.T) {
 	testName := "TestUserDaoSqlite_CreateUpdate"
-	dao := _initUserDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initUserDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -151,7 +151,7 @@ func TestUserDaoSqlite_CreateUpdate(t *testing.T) {
 
 func TestUserDaoSqlite_GetN(t *testing.T) {
 	testName := "TestUserDaoSqlite_GetN"
-	dao := _initUserDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initUserDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
@@ -161,7 +161,7 @@ func TestUserDaoSqlite_GetN(t *testing.T) {
 
 func TestUserDaoSqlite_GetAll(t *testing.T) {
 	testName := "TestUserDaoSqlite_GetAll"
-	dao := _initUserDao(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
+	dao := _initUserDaoSql(os.Getenv(envSqliteDriver), os.Getenv(envSqliteUrl), testSqlTableNameGroup, sql.FlavorSqlite)
 	if dao == nil {
 		t.SkipNow()
 	}
