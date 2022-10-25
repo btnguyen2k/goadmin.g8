@@ -6,9 +6,6 @@ on:
   pull_request:
     branches: [ master ]
 
-env:
-  GO_VERSION: "^1.13"
-
 jobs:
   testWithMongoStandalone:
     name: Test with MongoDB (Standalone)
@@ -17,7 +14,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: $GO_VERSION
+        go-version: ^1.13
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
     - name: Start MongoDB Standalone server
@@ -42,7 +39,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: $GO_VERSION
+        go-version: ^1.13
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
     - name: Start MongoDB Standalone server
@@ -67,7 +64,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: $GO_VERSION
+        go-version: ^1.13
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
     - name: Start MySQL server
@@ -99,7 +96,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: $GO_VERSION
+        go-version: ^1.13
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
     - name: Start PostgreSQL server
@@ -124,7 +121,7 @@ jobs:
     - name: Set up Go env
       uses: actions/setup-go@v2
       with:
-        go-version: ${GO_VERSION}
+        go-version: $GO_VERSION
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
     - name: Test
