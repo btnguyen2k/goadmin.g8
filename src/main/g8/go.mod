@@ -1,6 +1,6 @@
 module main
 
-go 1.15
+go 1.13
 
 require (
 	github.com/btnguyen2k/consu/olaf v0.1.3
