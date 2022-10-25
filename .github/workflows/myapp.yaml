@@ -25,7 +25,7 @@ jobs:
         export MONGO_DB="test"
         export MONGO_URL="mongodb://test:test@localhost:27017/?authSource=admin"
         cd ./src/main/g8
-        go mod tidy && go test -v -count 1 -p 1 -cover -coverprofile=coverage_mongo_standalone.txt ./src/myapp/
+        go mod tidy -compat=1.17 && go test -v -count 1 -p 1 -cover -coverprofile=coverage_mongo_standalone.txt ./src/myapp/
     - name: Codecov
       uses: codecov/codecov-action@v3
       with:
