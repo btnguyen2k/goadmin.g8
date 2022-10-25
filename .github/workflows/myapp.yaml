@@ -150,11 +150,12 @@ jobs:
     - name: Install go-giter8
       run: |
         # minimum go-giter8 v0.5.1 for "quiet" mode
-        go get github.com/btnguyen2k/go-giter8/g8@v0.5.1
+        go install github.com/btnguyen2k/go-giter8/g8@v0.5.1
     - name: Check out code
       uses: actions/checkout@v2
     - name: Temp
       run: |
+        go version
         g8 --version
         echo PWD: $(pwd)
         echo GITHUB_ACTION_PATH: $GITHUB_ACTION_PATH
