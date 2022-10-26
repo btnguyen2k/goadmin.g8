@@ -25,7 +25,7 @@ jobs:
         export MONGO_DB="test"
         export MONGO_URL="mongodb://test:test@localhost:27017/?authSource=admin"
         cd ./src/main/g8
-        go mod tidy -compat=1.17 && go test -v -count 1 -p 1 -cover -coverprofile=coverage_mongo_standalone.txt ./src/myapp/
+        go test -v -count 1 -p 1 -cover -coverprofile=coverage_mongo_standalone.txt ./src/myapp/
     - name: Codecov
       uses: codecov/codecov-action@v3
       with:
@@ -150,13 +150,15 @@ jobs:
     - name: Install go-giter8
       run: |
         # minimum go-giter8 v0.5.1 for "quiet" mode
-        export GO111MODULE=on && go install github.com/btnguyen2k/go-giter8/g8@v0.5.1
+        go install github.com/btnguyen2k/go-giter8/g8@v0.5.1
     - name: Check out code
       uses: actions/checkout@v2
     - name: Temp
       run: |
-        go version
-        g8 --version
-        echo PWD: $(pwd)
-        echo GITHUB_ACTION_PATH: $GITHUB_ACTION_PATH
-        echo GITHUB_WORKSPACE: $GITHUB_WORKSPACE
+        mkdir -p ../temp
+        cd ../temp && g8 new --no-inputs file://$(GITHUB_WORKSPACE)
+        #go version
+        #g8 --version
+        #echo PWD: $(pwd)
+        #echo GITHUB_ACTION_PATH: $GITHUB_ACTION_PATH
+        #echo GITHUB_WORKSPACE: $GITHUB_WORKSPACE
