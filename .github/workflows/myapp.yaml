@@ -156,7 +156,7 @@ jobs:
     - name: Temp
       run: |
         mkdir -p ../temp
-        cd ../temp && g8 new --no-inputs file://$(GITHUB_WORKSPACE)
+        cd ../temp && g8 new --no-inputs file://$GITHUB_WORKSPACE
         #go version
         #g8 --version
         #echo PWD: $(pwd)
