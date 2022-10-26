@@ -153,12 +153,10 @@ jobs:
         go install github.com/btnguyen2k/go-giter8/g8@v0.5.1
     - name: Check out code
       uses: actions/checkout@v2
-    - name: Temp
+    - name: Generate project via g8
       run: |
-        mkdir -p ../temp
-        cd ../temp && g8 new --no-inputs file://$GITHUB_WORKSPACE
-        #go version
-        #g8 --version
-        #echo PWD: $(pwd)
-        #echo GITHUB_ACTION_PATH: $GITHUB_ACTION_PATH
-        #echo GITHUB_WORKSPACE: $GITHUB_WORKSPACE
+        mkdir -p $GITHUB_WORKSPACE/../temp
+        cd $GITHUB_WORKSPACE/../temp && g8 new --no-inputs file://$GITHUB_WORKSPACE
+    - name: Build Docker image
+      run: |
+        cd $GITHUB_WORKSPACE/../temp && docker build -t test .
