@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/btnguyen2k/consu/reddo"
+	prommongo "github.com/btnguyen2k/prom/mongo"
 	promsql "github.com/btnguyen2k/prom/sql"
 	"github.com/go-akka/configuration"
 	"github.com/labstack/echo/v4"
@@ -31,6 +32,7 @@ var (
 	myStaticPath = "/static"
 	myI18n       *i18n.I18n
 	sqlc         *promsql.SqlConnect
+	mc           *prommongo.MongoConnect
 	groupDao     GroupDao
 	userDao      UserDao
 )
