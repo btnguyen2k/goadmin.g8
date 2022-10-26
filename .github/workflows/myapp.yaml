@@ -158,6 +158,6 @@ jobs:
         mkdir -p $GITHUB_WORKSPACE/../temp
         cd $GITHUB_WORKSPACE/../temp && g8 new --no-inputs file://$GITHUB_WORKSPACE
         cd $GITHUB_WORKSPACE/../temp && ls -l
-    # - name: Build Docker image
-    #   run: |
-    #     cd $GITHUB_WORKSPACE/../temp && docker build -t test .
+    - name: Build Docker image
+      run: |
+        cd $GITHUB_WORKSPACE/../temp/go_echo-admincp-seed && docker build -t test .
