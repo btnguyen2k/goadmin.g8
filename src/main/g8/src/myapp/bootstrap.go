@@ -1,24 +1,25 @@
-/*
-Package myapp contains application's source code.
-*/
+// Package myapp contains application's source code.
 package myapp
 
 import (
 	"errors"
 	"fmt"
-	"github.com/btnguyen2k/consu/reddo"
-	"github.com/btnguyen2k/prom"
-	"github.com/go-akka/configuration"
-	"github.com/labstack/echo/v4"
 	"html/template"
 	"io"
 	"log"
-	"main/src/goadmin"
-	"main/src/i18n"
 	"net/http"
 	"net/url"
 	"reflect"
 	"strings"
+
+	"github.com/btnguyen2k/consu/reddo"
+	prommongo "github.com/btnguyen2k/prom/mongo"
+	promsql "github.com/btnguyen2k/prom/sql"
+	"github.com/go-akka/configuration"
+	"github.com/labstack/echo/v4"
+	"main/src/goadmin"
+	"main/src/i18n"
+	"main/src/utils"
 )
 
 type MyBootstrapper struct {
@@ -30,7 +31,8 @@ var (
 	cdnMode      = false
 	myStaticPath = "/static"
 	myI18n       *i18n.I18n
-	sqlc         *prom.SqlConnect
+	sqlc         *promsql.SqlConnect
+	mc           *prommongo.MongoConnect
 	groupDao     GroupDao
 	userDao      UserDao
 )
@@ -68,13 +70,11 @@ const (
 	actionNameCpDeleteUserSubmit = "cp_delete_user_submit"
 )
 
-/*
-Bootstrap implements goadmin.IBootstrapper.Bootstrap
-
-Bootstrapper usually does:
-- register URI routing
-- other initializing work (e.g. creating DAO, initializing database, etc)
-*/
+// Bootstrap implements goadmin.IBootstrapper.Bootstrap
+//
+// Bootstrapper usually does:
+// - register URI routing
+// - other initializing work (e.g. creating DAO, initializing database, etc)
 func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) error {
 	cdnMode = conf.GetBoolean(goadmin.ConfKeyCdnMode, false)
 
@@ -122,15 +122,14 @@ func initDaos() {
 	switch dbtype {
 	case "sqlite":
 		root := goadmin.AppConfig.GetString(namespace+".db.sqlite.root", "./data/sqlite")
-		sqlc = newSqliteConnection(root, namespace)
+		sqlc = newSqliteConnection(root, namespace, utils.Location)
 		sqliteInitTableGroup(sqlc, sqliteTableGroup)
 		sqliteInitTableUser(sqlc, sqliteTableUser)
 		groupDao = newGroupDaoSqlite(sqlc, sqliteTableGroup)
 		userDao = newUserDaoSqlite(sqlc, sqliteTableUser)
 	case "postgresql", "pgsql", "postgres":
 		url := goadmin.AppConfig.GetString(namespace+".db.pgsql.url", "postgres://test:test@localhost:5432/test")
-		timezone := goadmin.AppConfig.GetString("timezone", "Asia/Ho_Chi_Minh")
-		sqlc = newPgsqlConnection(url, timezone)
+		sqlc = newPgsqlConnection(url, utils.Location)
 		pgsqlInitTableGroup(sqlc, pgsqlTableGroup)
 		pgsqlInitTableUser(sqlc, pgsqlTableUser)
 		groupDao = newGroupDaoPgsql(sqlc, pgsqlTableGroup)
@@ -188,12 +187,9 @@ type myRenderer struct {
 	templates          map[string]*template.Template
 }
 
-/*
-Render renders a template document
-
-	- name is list of template names, separated by colon (e.g. <template-name-1>[:<template-name-2>[:<template-name-3>...]])
-*/
-func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+// Render renders a template document.
+// - tplNames is list of template names, separated by colon (e.g. <template-name-1>[:<template-name-2>[:<template-name-3>...]])
+func (r *myRenderer) Render(w io.Writer, tplNames string, data interface{}, c echo.Context) error {
 	v := reflect.ValueOf(data)
 	if data == nil || v.IsNil() {
 		data = make(map[string]interface{})
@@ -235,17 +231,17 @@ func (r *myRenderer) Render(w io.Writer, name string, data interface{}, c echo.C
 		}
 	}
 
-	tpl := r.templates[name]
-	tokens := strings.Split(name, ":")
+	tpl := r.templates[tplNames]
+	tokens := strings.Split(tplNames, ":")
 	if tpl == nil {
 		var files []string
 		for _, v := range tokens {
 			files = append(files, r.directory+"/"+v+r.templateFileSuffix)
 		}
-		tpl = template.Must(template.New(name).ParseFiles(files...))
-		r.templates[name] = tpl
+		tpl = template.Must(template.New(tplNames).ParseFiles(files...))
+		r.templates[tplNames] = tpl
 	}
-	// first template-name should be "master" template, and its name is prefixed with ".html"
+	// first template-tplNames should be "master" template, and its tplNames is prefixed with ".html"
 	return tpl.ExecuteTemplate(w, tokens[0]+".html", data)
 }
 
@@ -423,7 +419,7 @@ func checkCpCreateGroup(c echo.Context) error {
 func actionCpCreateGroup(c echo.Context) error {
 	if err := checkCpCreateGroup(c); err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 	}
 	formData, _ := c.FormParams()
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
@@ -435,7 +431,7 @@ func actionCpCreateGroup(c echo.Context) error {
 func actionCpCreateGroupSubmit(c echo.Context) error {
 	if err := checkCpCreateGroup(c); err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 	}
 
 	var errMsg string
@@ -472,7 +468,7 @@ func actionCpCreateGroupSubmit(c echo.Context) error {
 		goto end
 	}
 	addFlashMsg(c, myI18n.Text("create_group_successful", group.Id))
-	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
 		"active": "groups",
@@ -496,7 +492,7 @@ func actionCpEditGroup(c echo.Context) error {
 	group, err := checkCpEditGroup(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 	}
 
 	formData := url.Values{}
@@ -513,7 +509,7 @@ func actionCpEditGroupSubmit(c echo.Context) error {
 	group, err := checkCpEditGroup(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 	}
 
 	var errMsg string
@@ -529,7 +525,7 @@ func actionCpEditGroupSubmit(c echo.Context) error {
 		goto end
 	}
 	addFlashMsg(c, myI18n.Text("update_group_successful", group.Id))
-	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
 		"active":   "groups",
@@ -562,7 +558,7 @@ func actionCpDeleteGroup(c echo.Context) error {
 	group, err := checkCpDeleteGroup(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 	}
 
 	return c.Render(http.StatusOK, namespace+":layout:cp_delete_group", map[string]interface{}{
@@ -575,7 +571,7 @@ func actionCpDeleteGroupSubmit(c echo.Context) error {
 	group, err := checkCpDeleteGroup(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 	}
 
 	var errMsg string
@@ -585,7 +581,7 @@ func actionCpDeleteGroupSubmit(c echo.Context) error {
 		goto end
 	}
 	addFlashMsg(c, myI18n.Text("delete_group_successful", group.Id))
-	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_delete_group", map[string]interface{}{
 		"active":    "groups",
@@ -617,7 +613,7 @@ func checkCpCreateUser(c echo.Context) error {
 func actionCpCreateUser(c echo.Context) error {
 	if err := checkCpCreateUser(c); err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 	}
 	formData, _ := c.FormParams()
 	u := &MyAppUtils{c: c}
@@ -631,7 +627,7 @@ func actionCpCreateUser(c echo.Context) error {
 func actionCpCreateUserSubmit(c echo.Context) error {
 	if err := checkCpCreateUser(c); err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 	}
 
 	var errMsg string
@@ -682,7 +678,7 @@ func actionCpCreateUserSubmit(c echo.Context) error {
 		goto end
 	}
 	addFlashMsg(c, myI18n.Text("create_user_successful", user.Username))
-	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
 		"active":     "users",
@@ -716,7 +712,7 @@ func actionCpEditUser(c echo.Context) error {
 	user, err := checkCpEditUser(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 	}
 
 	u := &MyAppUtils{c: c}
@@ -737,7 +733,7 @@ func actionCpEditUserSubmit(c echo.Context) error {
 	user, err := checkCpEditUser(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 	}
 
 	var u = &MyAppUtils{c: c}
@@ -769,7 +765,7 @@ func actionCpEditUserSubmit(c echo.Context) error {
 		goto end
 	}
 	addFlashMsg(c, myI18n.Text("update_user_successful", user.Username))
-	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
 		"active":       "users",
@@ -804,7 +800,7 @@ func actionCpDeleteUser(c echo.Context) error {
 	user, err := checkCpDeleteUser(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 	}
 
 	return c.Render(http.StatusOK, namespace+":layout:cp_delete_user", map[string]interface{}{
@@ -817,7 +813,7 @@ func actionCpDeleteUserSubmit(c echo.Context) error {
 	user, err := checkCpDeleteUser(c)
 	if err != nil {
 		addFlashMsg(c, flashPrefixWarning+err.Error())
-		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
+		return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 	}
 
 	var errMsg string
@@ -827,7 +823,7 @@ func actionCpDeleteUserSubmit(c echo.Context) error {
 		goto end
 	}
 	addFlashMsg(c, myI18n.Text("delete_user_successful", user.Username))
-	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+randomString(4))
+	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_delete_user", map[string]interface{}{
 		"active": "users",

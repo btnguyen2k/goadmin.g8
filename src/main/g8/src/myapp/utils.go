@@ -3,17 +3,17 @@ package myapp
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"log"
+	"math"
+	"runtime"
+	"strings"
+
 	"github.com/btnguyen2k/consu/reddo"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
-	"log"
-	"math"
-	"math/rand"
-	"runtime"
-	"strings"
 )
 
 const (
@@ -43,8 +43,8 @@ func addFlashMsg(c echo.Context, msg string) {
 	sess.Save(c.Request(), c.Response())
 }
 
-func encryptPassword(username, rawPassword string) string {
-	saltAndPwd := username + "." + rawPassword
+func encryptPassword(salt, rawPassword string) string {
+	saltAndPwd := salt + "." + rawPassword
 	out := sha1.Sum([]byte(saltAndPwd))
 	return strings.ToLower(hex.EncodeToString(out[:]))
 }
@@ -59,19 +59,6 @@ func getCurrentUser(c echo.Context) (*User, error) {
 		}
 	}
 	return nil, nil
-}
-
-const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-/*
-randomString generates a random string with specified length.
-*/
-func randomString(l int) string {
-	b := make([]byte, l)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
 }
 
 /*----------------------------------------------------------------------*/

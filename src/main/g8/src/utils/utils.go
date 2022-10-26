@@ -8,12 +8,13 @@ package utils
 
 import (
 	"bytes"
-	olaf2 "github.com/btnguyen2k/consu/olaf"
 	"math/rand"
 	"net"
 	"strconv"
 	"strings"
 	"time"
+
+	olaf2 "github.com/btnguyen2k/consu/olaf"
 )
 
 // global variables
@@ -54,9 +55,7 @@ func UniqueIdSmall() string {
 
 const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-/*
-RandomString generates a random string with specified length.
-*/
+// RandomString generates a random string with specified length.
 func RandomString(l int) string {
 	b := make([]byte, l)
 	for i := range b {

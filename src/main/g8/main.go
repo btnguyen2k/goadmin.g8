@@ -7,10 +7,11 @@ Application Server bootstrapper.
 package main
 
 import (
-	"main/src/goadmin"
-	"main/src/myapp"
 	"math/rand"
 	"time"
+
+	"main/src/goadmin"
+	"main/src/myapp"
 )
 
 func main() {
@@ -18,9 +19,6 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	// start Echo server with custom bootstrappers
-	// bootstrapper routine is passed the echo.Echo instance as argument, and also has access to global variables:
-	// - Application configurations via goadmin.AppConfig
-	// - Echo server via goadmin.EchoServer
 	var bootstrappers = []goadmin.IBootstrapper{
 		myapp.Bootstrapper,
 	}
