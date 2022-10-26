@@ -157,6 +157,7 @@ jobs:
       run: |
         mkdir -p $GITHUB_WORKSPACE/../temp
         cd $GITHUB_WORKSPACE/../temp && g8 new --no-inputs file://$GITHUB_WORKSPACE
-    - name: Build Docker image
-      run: |
-        cd $GITHUB_WORKSPACE/../temp && docker build -t test .
+        cd $GITHUB_WORKSPACE/../temp && ls -l
+    # - name: Build Docker image
+    #   run: |
+    #     cd $GITHUB_WORKSPACE/../temp && docker build -t test .
