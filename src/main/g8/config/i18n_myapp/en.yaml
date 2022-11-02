@@ -1,0 +1,41 @@
+---
+en:
+  _name: English
+
+  ## 0xx = other db errors
+  #  001: general database error
+  error_db_001: "Database error (001:{{.err}})"
+
+  ## 1xx = user account related errors
+  #  101: error while fetching user data from database
+  error_db_101: "Database error (101:{{.err}})"
+  #  111: error while updating user data
+  error_db_111: "Database error (111:{{.err}})"
+  #  121: error while creating new user
+  error_db_121: "Database error (121:{{.err}})"
+  #  131: error while deleting existing user
+  error_db_131: "Database error (131:{{.err}})"
+
+  ## 2xx = app related errors
+  #  201: error while fetching app data from database
+  error_db_201: "Database error (201:{{.err}})"
+  #  211: error while updating app data
+  error_db_211: "Database error (211:{{.err}})"
+  #  221: error while creating new app
+  error_db_221: "Database error (221:{{.err}})"
+  #  231: error while deleting existing app
+  error_db_231: "Database error (231:{{.err}})"
+
+  ## 3xx = group related errors
+  #  301: error while fetching group data from database
+  error_db_301: "Database error (301:{{.err}})"
+  #  311: error while updating group data
+  error_db_311: "Database error (311:{{.err}})"
+  #  321: error while creating new group
+  error_db_321: "Database error (321:{{.err}})"
+  #  331: error while deleting existing group
+  error_db_331: "Database error (331:{{.err}})"
+
+  ## 4xx = user input related errors
+  #  400: error while parsing submit form
+  error_form_400: "Error parsing form data (400:{{.err}})"

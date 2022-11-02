@@ -13,12 +13,12 @@ import (
 	"strings"
 
 	"github.com/btnguyen2k/consu/reddo"
+	"github.com/btnguyen2k/goyai"
 	prommongo "github.com/btnguyen2k/prom/mongo"
 	promsql "github.com/btnguyen2k/prom/sql"
 	"github.com/go-akka/configuration"
 	"github.com/labstack/echo/v4"
 	"main/src/goadmin"
-	"main/src/i18n"
 	"main/src/utils"
 )
 
@@ -28,19 +28,22 @@ type MyBootstrapper struct {
 
 var (
 	Bootstrapper = &MyBootstrapper{name: "myapp"}
+
 	cdnMode      = false
 	myStaticPath = "/static"
-	myI18n       *i18n.I18n
 	sqlc         *promsql.SqlConnect
 	mc           *prommongo.MongoConnect
 	groupDao     GroupDao
 	userDao      UserDao
+	myI18n       goyai.I18n
 )
 
 const (
 	namespace = "myapp"
 
 	ctxCurrentUser = "usr"
+	ctxLocale      = "loc"
+	cookieLocale   = "loc"
 	sessionMyUid   = "uid"
 
 	actionNameHome          = "home"
@@ -77,16 +80,30 @@ const (
 // - other initializing work (e.g. creating DAO, initializing database, etc)
 func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) error {
 	cdnMode = conf.GetBoolean(goadmin.ConfKeyCdnMode, false)
+	demoMode = conf.GetBoolean(namespace+".demo_mode", demoMode)
+	systemUserUsername = conf.GetString(namespace+".init.admin_username", systemUserUsername)
+	systemUserName = conf.GetString(namespace+".init.admin_name", systemUserName)
 
 	myStaticPath = "/static_v" + conf.GetString("app.version", "")
 	e.Static(myStaticPath, "public")
 
-	myI18n = i18n.NewI18n("./config/i18n_" + namespace)
+	if i18n, err := goyai.BuildI18n(goyai.I18nOptions{
+		ConfigFileOrDir: "./config/i18n_" + namespace,
+		DefaultLocale:   "en",
+		I18nFileFormat:  goyai.Auto,
+	}); err != nil {
+		return err
+	} else {
+		myI18n = i18n
+	}
 
 	initDaos()
+	_initData()
 
 	// register a custom namespace-scope template renderer
 	goadmin.EchoRegisterRenderer(namespace, newTemplateRenderer("./views/myapp", ".html"))
+
+	e.Use(middlewarePopulateLocale)
 
 	e.GET("/", actionHome).Name = actionNameHome
 
@@ -120,13 +137,25 @@ func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) err
 func initDaos() {
 	dbtype := goadmin.AppConfig.GetString(namespace + ".db.type")
 	switch dbtype {
-	case "sqlite":
-		root := goadmin.AppConfig.GetString(namespace+".db.sqlite.root", "./data/sqlite")
-		sqlc = newSqliteConnection(root, namespace, utils.Location)
-		sqliteInitTableGroup(sqlc, sqliteTableGroup)
-		sqliteInitTableUser(sqlc, sqliteTableUser)
-		groupDao = newGroupDaoSqlite(sqlc, sqliteTableGroup)
-		userDao = newUserDaoSqlite(sqlc, sqliteTableUser)
+	case "mongo", "mongodb":
+		url := goadmin.AppConfig.GetString(namespace+".db.mongodb.url", "mongodb://test:test@localhost:37017/?authSource=admin")
+		db := goadmin.AppConfig.GetString(namespace+".db.mongodb.db", "test")
+		mc = newMongoConnection(url, db)
+		mongoInitCollectionGroup(mc, mongoCollectionGroup)
+		mongoInitCollectionUser(mc, mongoCollectionUser)
+		groupDao = newGroupDaoMongo(mc, mongoCollectionGroup)
+		userDao = newUserDaoMongo(mc, mongoCollectionUser)
+	case "mysql":
+		url := goadmin.AppConfig.GetString(namespace+".db.mysql.url", "test:test@tcp(localhost:3306)/test?charset=utf8mb4,utf8&parseTime=true&loc=${loc}")
+		urlTimezone := strings.ReplaceAll(utils.Location.String(), "/", "%2f")
+		url = strings.ReplaceAll(url, "${loc}", urlTimezone)
+		url = strings.ReplaceAll(url, "${tz}", urlTimezone)
+		url = strings.ReplaceAll(url, "${timezone}", urlTimezone)
+		sqlc = newMysqlConnection(url, utils.Location)
+		mysqlInitTableGroup(sqlc, mysqlTableGroup)
+		mysqlInitTableUser(sqlc, mysqlTableUser)
+		groupDao = newGroupDaoMysql(sqlc, mysqlTableGroup)
+		userDao = newUserDaoMysql(sqlc, mysqlTableUser)
 	case "postgresql", "pgsql", "postgres":
 		url := goadmin.AppConfig.GetString(namespace+".db.pgsql.url", "postgres://test:test@localhost:5432/test")
 		sqlc = newPgsqlConnection(url, utils.Location)
@@ -134,38 +163,45 @@ func initDaos() {
 		pgsqlInitTableUser(sqlc, pgsqlTableUser)
 		groupDao = newGroupDaoPgsql(sqlc, pgsqlTableGroup)
 		userDao = newUserDaoPgsql(sqlc, pgsqlTableUser)
+	case "sqlite", "sqlite3":
+		root := goadmin.AppConfig.GetString(namespace+".db.sqlite.root", "./data/sqlite")
+		sqlc = newSqliteConnection(root, namespace, utils.Location)
+		sqliteInitTableGroup(sqlc, sqliteTableGroup)
+		sqliteInitTableUser(sqlc, sqliteTableUser)
+		groupDao = newGroupDaoSqlite(sqlc, sqliteTableGroup)
+		userDao = newUserDaoSqlite(sqlc, sqliteTableUser)
 	default:
 		panic(fmt.Sprintf("unsupported database type: %s", dbtype))
 	}
+}
 
-	systemGroup, err := groupDao.Get(SystemGroupId)
-	if err != nil {
-		panic("error while getting group [" + SystemGroupId + "]: " + err.Error())
-	}
-	if systemGroup == nil {
-		log.Printf("System group [%s] not found, creating one...", SystemGroupId)
-		result, err := groupDao.Create(SystemGroupId, "System User Group")
+func _initData() {
+	if systemGroup, err := groupDao.Get(systemGroupId); err != nil {
+		panic("error while getting group [" + systemGroupId + "]: " + err.Error())
+	} else if systemGroup == nil {
+		log.Printf("System group [%s] not found, creating one...", systemGroupId)
+		result, err := groupDao.Create(systemGroupId, "System User Group")
 		if err != nil {
-			panic("error while creating group [" + SystemGroupId + "]: " + err.Error())
+			panic("error while creating group [" + systemGroupId + "]: " + err.Error())
 		}
 		if !result {
-			log.Printf("Cannot create group [%s]", SystemGroupId)
+			log.Printf("Cannot create group [%s]", systemGroupId)
 		}
 	}
 
-	adminUser, err := userDao.Get(AdminUserUsernname)
+	adminUser, err := userDao.Get(systemUserUsername)
 	if err != nil {
-		panic("error while getting user [" + AdminUserUsernname + "]: " + err.Error())
+		panic("error while getting user [" + systemUserUsername + "]: " + err.Error())
 	}
 	if adminUser == nil {
-		pwd := "s3cr3t"
-		log.Printf("Admin user [%s] not found, creating one with password [%s]...", AdminUserUsernname, pwd)
-		result, err := userDao.Create(AdminUserUsernname, encryptPassword(AdminUserUsernname, pwd), AdminUserName, SystemGroupId)
+		pwd := goadmin.AppConfig.GetString(namespace+".init.admin_password", "S3cr3t")
+		log.Printf("Admin user [%s] not found, creating one with password [%s]...", systemUserName, pwd)
+		result, err := userDao.Create(systemUserUsername, encryptPassword(systemUserUsername, pwd), systemUserName, systemGroupId)
 		if err != nil {
-			panic("error while creating user [" + AdminUserUsernname + "]: " + err.Error())
+			panic("error while creating user [" + systemUserUsername + "]: " + err.Error())
 		}
 		if !result {
-			log.Printf("Cannot create user [%s]", AdminUserUsernname)
+			log.Printf("Cannot create user [%s]", systemUserUsername)
 		}
 	}
 }
@@ -246,6 +282,15 @@ func (r *myRenderer) Render(w io.Writer, tplNames string, data interface{}, c ec
 }
 
 /*----------------------------------------------------------------------*/
+// middleware function that populate the value of "locale" field to echo.Context
+// available since template-r3
+func middlewarePopulateLocale(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Set(ctxLocale, getCookieString(c, cookieLocale))
+		return next(c)
+	}
+}
+
 // authentication middleware
 func middlewareRequiredAuth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -289,23 +334,29 @@ func actionCpLoginSubmit(c echo.Context) error {
 	var err error
 	formData, err := c.FormParams()
 	if err != nil {
-		errMsg = myI18n.Text("error_form_400", err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_form_400", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": err.Error()},
+		})
 		goto end
 	}
 	username = formData.Get(formFieldUsername)
 	user, err = userDao.Get(username)
 	if err != nil {
-		errMsg = myI18n.Text("error_db_001", err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": username + "/" + err.Error()},
+		})
 		goto end
 	}
 	if user == nil {
-		errMsg = myI18n.Text("error_user_not_found", username)
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_user_not_found", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"user": username},
+		})
 		goto end
 	}
 	password = formData.Get(formFieldPassword)
 	encPassword = encryptPassword(user.Username, password)
 	if encPassword != user.Password {
-		errMsg = myI18n.Text("error_login_failed")
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_login_failed")
 		goto end
 	}
 
@@ -347,7 +398,9 @@ func actionCpChangePasswordSubmit(c echo.Context) error {
 	var formData url.Values
 	currentUser, err := getCurrentUser(c)
 	if err != nil {
-		errMsg = myI18n.Text("error_db_101", "current_user/"+err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": "current_user/" + err.Error()},
+		})
 		goto end
 	}
 	if currentUser == nil {
@@ -356,39 +409,43 @@ func actionCpChangePasswordSubmit(c echo.Context) error {
 	}
 
 	// FIXME this is for demo purpose only
-	if currentUser.Username == AdminUserUsernname {
+	if demoMode && currentUser.Username == systemUserUsername {
 		errMsg = "Cannot change system admin account's password"
 		goto end
 	}
 
 	formData, err = c.FormParams()
 	if err != nil {
-		errMsg = myI18n.Text("error_form_400", err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_form_400", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": err.Error()},
+		})
 		goto end
 	}
 	currentPwd = strings.TrimSpace(formData.Get("currentPassword"))
 	encPwd = encryptPassword(currentUser.Username, currentPwd)
 	if encPwd != currentUser.Password {
-		errMsg = myI18n.Text("error_password_not_matched")
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_password_not_matched")
 		goto end
 	}
 	pwd = strings.TrimSpace(formData.Get("password"))
 	pwd2 = strings.TrimSpace(formData.Get("password2"))
 	if pwd == "" {
-		errMsg = myI18n.Text("error_empty_user_password")
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_empty_user_password")
 		goto end
 	}
 	if pwd != pwd2 {
-		errMsg = myI18n.Text("error_mismatched_passwords")
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_mismatched_passwords")
 		goto end
 	}
 	currentUser.Password = encryptPassword(currentUser.Username, pwd)
 	_, err = userDao.Update(currentUser)
 	if err != nil {
-		errMsg = myI18n.Text("error_update_user", currentUser.Username, err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_111", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": "current_user/" + err.Error()},
+		})
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("change_password_successful"))
+	addFlashMsg(c, myI18n.Localize(getContextString(c, ctxLocale), "change_password_successful"))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_profile", map[string]interface{}{
 		"active": "profile",
@@ -408,10 +465,14 @@ func actionCpGroupList(c echo.Context) error {
 
 func checkCpCreateGroup(c echo.Context) error {
 	if currentUser, err := getCurrentUser(c); err != nil {
-		return errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
-	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": "current_user/" + err.Error()},
+		})
+		return errors.New(errMsg)
+	} else if currentUser == nil || currentUser.GroupId != systemGroupId {
 		// only admin can create groups
-		return errors.New(myI18n.Text("error_no_permission"))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_no_permission")
+		return errors.New(errMsg)
 	}
 	return nil
 }
@@ -441,7 +502,9 @@ func actionCpCreateGroupSubmit(c echo.Context) error {
 
 	formData, err = c.FormParams()
 	if err != nil {
-		errMsg = myI18n.Text("error_form_400", err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_form_400", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": err.Error()},
+		})
 		goto end
 	}
 
@@ -450,24 +513,32 @@ func actionCpCreateGroupSubmit(c echo.Context) error {
 		Name: strings.TrimSpace(formData.Get("name")),
 	}
 	if group.Id == "" {
-		errMsg = myI18n.Text("error_empty_group_id")
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_empty_group_id")
 		goto end
 	}
 	existingGroup, err = groupDao.Get(group.Id)
 	if err != nil {
-		errMsg = myI18n.Text("error_db_101", group.Id+"/"+err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_301", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": group.Id + "/" + err.Error()},
+		})
 		goto end
 	}
 	if existingGroup != nil {
-		errMsg = myI18n.Text("error_group_existed", group.Id)
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_group_existed", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"group": group.Id},
+		})
 		goto end
 	}
 	_, err = groupDao.Create(group.Id, group.Name)
 	if err != nil {
-		errMsg = myI18n.Text("error_create_group", group.Id, err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_321", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": group.Id + "/" + err.Error()},
+		})
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("create_group_successful", group.Id))
+	addFlashMsg(c, myI18n.Localize(getContextString(c, ctxLocale), "create_group_successful", &goyai.LocalizeConfig{
+		TemplateData: map[string]interface{}{"group": group.Id},
+	}))
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
@@ -480,9 +551,15 @@ end:
 func checkCpEditGroup(c echo.Context) (*Group, error) {
 	gid := c.QueryParam("id")
 	if group, err := groupDao.Get(gid); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", gid+"/"+err.Error()))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_db_301", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": gid + "/" + err.Error()},
+		})
+		return nil, errors.New(errMsg)
 	} else if group == nil {
-		return nil, errors.New(myI18n.Text("error_group_not_found", gid))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_group_not_found", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"group": gid},
+		})
+		return nil, errors.New(errMsg)
 	} else {
 		return group, nil
 	}
@@ -515,16 +592,22 @@ func actionCpEditGroupSubmit(c echo.Context) error {
 	var errMsg string
 	formData, err := c.FormParams()
 	if err != nil {
-		errMsg = myI18n.Text("error_form_400", err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_form_400", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": err.Error()},
+		})
 		goto end
 	}
 	group.Name = strings.TrimSpace(formData.Get("name"))
 	_, err = groupDao.Update(group)
 	if err != nil {
-		errMsg = myI18n.Text("error_update_group", group.Id, err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_311", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": group.Id + "/" + err.Error()},
+		})
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("update_group_successful", group.Id))
+	addFlashMsg(c, myI18n.Localize(getContextString(c, ctxLocale), "update_group_successful", &goyai.LocalizeConfig{
+		TemplateData: map[string]interface{}{"group": group.Id},
+	}))
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_group", map[string]interface{}{
@@ -537,18 +620,31 @@ end:
 
 func checkCpDeleteGroup(c echo.Context) (*Group, error) {
 	if currentUser, err := getCurrentUser(c); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
-	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": "current_user/" + err.Error()},
+		})
+		return nil, errors.New(errMsg)
+	} else if currentUser == nil || currentUser.GroupId != systemGroupId {
 		// only admin can delete groups
-		return nil, errors.New(myI18n.Text("error_no_permission"))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_no_permission")
+		return nil, errors.New(errMsg)
 	}
 	gid := c.QueryParam("id")
 	if group, err := groupDao.Get(gid); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", gid+"/"+err.Error()))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_db_301", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": gid + "/" + err.Error()},
+		})
+		return nil, errors.New(errMsg)
 	} else if group == nil {
-		return nil, errors.New(myI18n.Text("error_group_not_found", gid))
-	} else if group.Id == SystemGroupId {
-		return nil, errors.New(myI18n.Text("error_delete_system_group", gid))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_group_not_found", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"group": gid},
+		})
+		return nil, errors.New(errMsg)
+	} else if group.Id == systemGroupId {
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_delete_system_group", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"group": gid},
+		})
+		return nil, errors.New(errMsg)
 	} else {
 		return group, nil
 	}
@@ -577,10 +673,14 @@ func actionCpDeleteGroupSubmit(c echo.Context) error {
 	var errMsg string
 	_, err = groupDao.Delete(group)
 	if err != nil {
-		errMsg = myI18n.Text("error_delete_group", group.Id, err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_331", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": group.Id + "/" + err.Error()},
+		})
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("delete_group_successful", group.Id))
+	addFlashMsg(c, myI18n.Localize(getContextString(c, ctxLocale), "delete_group_successful", &goyai.LocalizeConfig{
+		TemplateData: map[string]interface{}{"group": group.Id},
+	}))
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpGroups)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_delete_group", map[string]interface{}{
@@ -602,10 +702,14 @@ func actionCpUserList(c echo.Context) error {
 
 func checkCpCreateUser(c echo.Context) error {
 	if currentUser, err := getCurrentUser(c); err != nil {
-		return errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
-	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": "current_user/" + err.Error()},
+		})
+		return errors.New(errMsg)
+	} else if currentUser == nil || currentUser.GroupId != systemGroupId {
 		// only admin can create users
-		return errors.New(myI18n.Text("error_no_permission"))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_no_permission")
+		return errors.New(errMsg)
 	}
 	return nil
 }
@@ -639,7 +743,9 @@ func actionCpCreateUserSubmit(c echo.Context) error {
 
 	formData, err = c.FormParams()
 	if err != nil {
-		errMsg = myI18n.Text("error_form_400", err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_form_400", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": err.Error()},
+		})
 		goto end
 	}
 
@@ -651,33 +757,41 @@ func actionCpCreateUserSubmit(c echo.Context) error {
 	pwd = strings.TrimSpace(formData.Get("password"))
 	pwd2 = strings.TrimSpace(formData.Get("password2"))
 	if user.Username == "" {
-		errMsg = myI18n.Text("error_empty_user_username")
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_empty_user_username")
 		goto end
 	}
 	existingUser, err = userDao.Get(user.Username)
 	if err != nil {
-		errMsg = myI18n.Text("error_db_101", user.Username+"/"+err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": user.Username + "/" + err.Error()},
+		})
 		goto end
 	}
 	if existingUser != nil {
-		errMsg = myI18n.Text("error_user_existed", user.Username)
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_user_existed", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"user": user.Username},
+		})
 		goto end
 	}
 	if pwd == "" {
-		errMsg = myI18n.Text("error_empty_user_password")
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_empty_user_password")
 		goto end
 	}
 	if pwd != pwd2 {
-		errMsg = myI18n.Text("error_mismatched_passwords")
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_mismatched_passwords")
 		goto end
 	}
 	user.Password = encryptPassword(user.Username, pwd)
 	_, err = userDao.Create(user.Username, user.Password, user.Name, user.GroupId)
 	if err != nil {
-		errMsg = myI18n.Text("error_create_user", user.Username, err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_121", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": user.Username + "/" + err.Error()},
+		})
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("create_user_successful", user.Username))
+	addFlashMsg(c, myI18n.Localize(getContextString(c, ctxLocale), "create_user_successful", &goyai.LocalizeConfig{
+		TemplateData: map[string]interface{}{"user": user.Username},
+	}))
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
@@ -690,17 +804,27 @@ end:
 
 func checkCpEditUser(c echo.Context) (*User, error) {
 	if currentUser, err := getCurrentUser(c); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
-	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": "current_user/" + err.Error()},
+		})
+		return nil, errors.New(errMsg)
+	} else if currentUser == nil || currentUser.GroupId != systemGroupId {
 		// only admin can edit users
-		return nil, errors.New(myI18n.Text("error_no_permission"))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_no_permission")
+		return nil, errors.New(errMsg)
 	}
 	username := c.QueryParam("u")
 	if user, err := userDao.Get(username); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", username+"/"+err.Error()))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": username + "/" + err.Error()},
+		})
+		return nil, errors.New(errMsg)
 	} else if user == nil {
-		return nil, errors.New(myI18n.Text("error_user_not_found", username))
-	} else if username == AdminUserUsernname {
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_user_not_found", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"user": username},
+		})
+		return nil, errors.New(errMsg)
+	} else if demoMode && username == systemUserUsername {
 		// FIXME for demo purpose only
 		return nil, errors.New(fmt.Sprintf("Cannot edit system account account [%s]", username))
 	} else {
@@ -725,7 +849,7 @@ func actionCpEditUser(c echo.Context) error {
 		"editMode":     true,
 		"form":         formData,
 		"userGroups":   u.AllUserGroups(),
-		"disableGroup": user.Username == AdminUserUsernname,
+		"disableGroup": demoMode && user.Username == systemUserUsername,
 	})
 }
 
@@ -741,7 +865,9 @@ func actionCpEditUserSubmit(c echo.Context) error {
 	var pwd, pwd2 string
 	formData, err := c.FormParams()
 	if err != nil {
-		errMsg = myI18n.Text("error_form_400", err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_form_400", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": err.Error()},
+		})
 		goto end
 	}
 	pwd = strings.TrimSpace(formData.Get("password"))
@@ -749,22 +875,26 @@ func actionCpEditUserSubmit(c echo.Context) error {
 	if pwd != "" {
 		// to change password: enter new one
 		if pwd != pwd2 {
-			errMsg = myI18n.Text("error_mismatched_passwords")
+			errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_mismatched_passwords")
 			goto end
 		}
 		user.Password = encryptPassword(user.Username, pwd)
 	}
 	user.Name = strings.TrimSpace(formData.Get("name"))
-	if user.Username != AdminUserUsernname {
+	if !demoMode || user.Username != systemUserUsername {
 		// do not change group of system admin user
 		user.GroupId = strings.ToLower(strings.TrimSpace(formData.Get("group")))
 	}
 	_, err = userDao.Update(user)
 	if err != nil {
-		errMsg = myI18n.Text("error_update_user", user.Username, err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_111", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": user.Username + "/" + err.Error()},
+		})
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("update_user_successful", user.Username))
+	addFlashMsg(c, myI18n.Localize(getContextString(c, ctxLocale), "update_user_successful", &goyai.LocalizeConfig{
+		TemplateData: map[string]interface{}{"user": user.Username},
+	}))
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_create_edit_user", map[string]interface{}{
@@ -773,24 +903,37 @@ end:
 		"form":         formData,
 		"userGroups":   u.AllUserGroups(),
 		"error":        errMsg,
-		"disableGroup": user.Username == AdminUserUsernname,
+		"disableGroup": demoMode && user.Username == systemUserUsername,
 	})
 }
 
 func checkCpDeleteUser(c echo.Context) (*User, error) {
 	if currentUser, err := getCurrentUser(c); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", "current_user/"+err.Error()))
-	} else if currentUser == nil || currentUser.GroupId != SystemGroupId {
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": "current_user/" + err.Error()},
+		})
+		return nil, errors.New(errMsg)
+	} else if currentUser == nil || currentUser.GroupId != systemGroupId {
 		// only admin can delete users
-		return nil, errors.New(myI18n.Text("error_no_permission"))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_no_permission")
+		return nil, errors.New(errMsg)
 	}
 	username := c.QueryParam("u")
 	if user, err := userDao.Get(username); err != nil {
-		return nil, errors.New(myI18n.Text("error_db_101", username+"/"+err.Error()))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_db_101", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": username + "/" + err.Error()},
+		})
+		return nil, errors.New(errMsg)
 	} else if user == nil {
-		return nil, errors.New(myI18n.Text("error_user_not_found", username))
-	} else if username == AdminUserUsernname {
-		return nil, errors.New(myI18n.Text("error_delete_system_user", username))
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_user_not_found", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"user": username},
+		})
+		return nil, errors.New(errMsg)
+	} else if demoMode && username == systemUserUsername {
+		errMsg := myI18n.Localize(getContextString(c, ctxLocale), "error_delete_system_user", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"user": username},
+		})
+		return nil, errors.New(errMsg)
 	} else {
 		return user, nil
 	}
@@ -819,10 +962,14 @@ func actionCpDeleteUserSubmit(c echo.Context) error {
 	var errMsg string
 	_, err = userDao.Delete(user)
 	if err != nil {
-		errMsg = myI18n.Text("error_delete_user", user.Username, err.Error())
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_db_131", &goyai.LocalizeConfig{
+			TemplateData: map[string]interface{}{"err": user.Username + "/" + err.Error()},
+		})
 		goto end
 	}
-	addFlashMsg(c, myI18n.Text("delete_user_successful", user.Username))
+	addFlashMsg(c, myI18n.Localize(getContextString(c, ctxLocale), "delete_user_successful", &goyai.LocalizeConfig{
+		TemplateData: map[string]interface{}{"error": user.Username},
+	}))
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 end:
 	return c.Render(http.StatusOK, namespace+":layout:cp_delete_user", map[string]interface{}{

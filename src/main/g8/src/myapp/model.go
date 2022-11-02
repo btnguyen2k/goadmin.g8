@@ -25,7 +25,7 @@ type GroupModel struct {
 
 func (m *GroupModel) CanDelete() bool {
 	// cannot delete system-group
-	return m.Id != SystemGroupId
+	return m.Id != systemGroupId
 }
 
 func (m *GroupModel) UrlDelete() string {
@@ -60,17 +60,17 @@ type UserModel struct {
 }
 
 func (m *UserModel) IsSystemUser() bool {
-	return m.GroupId == SystemGroupId
+	return m.GroupId == systemGroupId
 }
 
 func (m *UserModel) CanDelete() bool {
 	// cannot delete system-user
-	return m.Username != AdminUserUsernname
+	return m.Username != systemUserName
 }
 
 func (m *UserModel) CanEdit() bool {
 	// cannot edit system-user
-	return m.Username != AdminUserUsernname
+	return m.Username != systemUserName
 }
 
 func (m *UserModel) UrlDelete() string {
