@@ -17,6 +17,16 @@ import (
 )
 
 const (
+	systemGroupId = "system" // reserved id for the "system" group
+)
+
+var (
+	demoMode           = false
+	systemUserUsername = "admin"         // reserved username for the "system" user
+	systemUserName     = "Administrator" // reserved name for the "system" user
+)
+
+const (
 	flashPrefixInfo    = "_I_:"
 	flashPrefixWarning = "_W_:"
 	flashPrefixError   = "_E_:"
@@ -59,6 +69,24 @@ func getCurrentUser(c echo.Context) (*User, error) {
 		}
 	}
 	return nil, nil
+}
+
+// available since template-r3
+func getCookieString(c echo.Context, cookieName string) string {
+	cookie, err := c.Cookie(cookieName)
+	if err != nil || cookie == nil {
+		return ""
+	}
+	return cookie.Value
+}
+
+// available since template-r3
+func getContextString(c echo.Context, key string) string {
+	val, err := reddo.ToString(c.Get(key))
+	if err != nil {
+		return ""
+	}
+	return val
 }
 
 /*----------------------------------------------------------------------*/

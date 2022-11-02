@@ -25,6 +25,10 @@ var (
 	mongoDefaultSoringGroup = (&godal.SortingField{FieldName: mongoFieldId}).ToSortingOpt()
 )
 
+const (
+	mongoCollectionGroup = namespace + "_group"
+)
+
 func mongoInitCollectionGroup(mc *prom.MongoConnect, collectionName string) {
 	err := mc.CreateCollection(collectionName)
 	if err != nil {
@@ -131,6 +135,10 @@ func (dao *GroupDaoMongo) Update(bo *Group) (bool, error) {
 }
 
 /*----------------------------------------------------------------------*/
+
+const (
+	mongoCollectionUser = namespace + "_user"
+)
 
 var (
 	mongoDefaultSoringUser = (&godal.SortingField{FieldName: fieldUserUsername}).ToSortingOpt()

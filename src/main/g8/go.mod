@@ -6,6 +6,7 @@ require (
 	github.com/btnguyen2k/consu/olaf v0.1.3
 	github.com/btnguyen2k/consu/reddo v0.1.7
 	github.com/btnguyen2k/godal v0.6.1
+	github.com/btnguyen2k/goyai v0.1.0
 	github.com/btnguyen2k/prom v0.4.1
 	github.com/go-akka/configuration v0.0.0-20200606091224-a002c0330665
 	github.com/go-sql-driver/mysql v1.6.0
@@ -53,4 +54,5 @@ require (
 	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220722155302-e5dcc9cfc0b9 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
