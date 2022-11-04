@@ -1,5 +1,10 @@
 # goadmin.g8 Release Notes
 
+## 2022-11-xx: template-r3
+
+Frontend:
+- `startbootstrap-grayscale v7.0.5`
+
 ## 2020-02-06: template-v0.4.r2
 
 - PostgreSQL implementation of BO & DAO.

@@ -17,8 +17,6 @@ import (
 
 const (
 	defaultConfigFile = "./config/application.conf"
-
-	ConfKeyCdnMode = "goadmin.cdn_mode"
 )
 
 var (
