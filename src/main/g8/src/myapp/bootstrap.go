@@ -29,6 +29,8 @@ type MyBootstrapper struct {
 var (
 	Bootstrapper = &MyBootstrapper{name: "myapp"}
 
+	demoMode     = false
+	devMode      = false
 	cdnMode      = false
 	myStaticPath = "/static"
 	sqlc         *promsql.SqlConnect
@@ -79,8 +81,9 @@ const (
 // - register URI routing
 // - other initializing work (e.g. creating DAO, initializing database, etc)
 func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) error {
-	cdnMode = conf.GetBoolean(goadmin.ConfKeyCdnMode, false)
+	cdnMode = conf.GetBoolean(namespace+".cdn_mode", cdnMode)
 	demoMode = conf.GetBoolean(namespace+".demo_mode", demoMode)
+	devMode = conf.GetBoolean(namespace+".dev_mode", devMode)
 	systemUserUsername = conf.GetString(namespace+".init.admin_username", systemUserUsername)
 	systemUserName = conf.GetString(namespace+".init.admin_name", systemUserName)
 
@@ -275,7 +278,10 @@ func (r *myRenderer) Render(w io.Writer, tplNames string, data interface{}, c ec
 			files = append(files, r.directory+"/"+v+r.templateFileSuffix)
 		}
 		tpl = template.Must(template.New(tplNames).ParseFiles(files...))
-		r.templates[tplNames] = tpl
+		if !devMode {
+			// DEV mode: disable template caching
+			r.templates[tplNames] = tpl
+		}
 	}
 	// first template-tplNames should be "master" template, and its tplNames is prefixed with ".html"
 	return tpl.ExecuteTemplate(w, tokens[0]+".html", data)

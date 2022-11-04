@@ -21,7 +21,6 @@ const (
 )
 
 var (
-	demoMode           = false
 	systemUserUsername = "admin"         // reserved username for the "system" user
 	systemUserName     = "Administrator" // reserved name for the "system" user
 )

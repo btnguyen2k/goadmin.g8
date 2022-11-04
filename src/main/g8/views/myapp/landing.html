@@ -1,222 +1,194 @@
 <!DOCTYPE html>
+{{define "GRAYSCALE"}}startbootstrap-grayscale-7.0.5{{end}}
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Giter8 template to build Admin Control Panel for Go" />
     <meta name="author" content="{{.appInfo.GetString "shortname"}}">
-
     <title>{{.appInfo.GetString "name"}}</title>
-
-    <!-- Custom styles for this template -->
-    <link href="{{.static}}/startbootstrap-grayscale-5.0.9/css/grayscale.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{{.static}}/{{template "GRAYSCALE"}}/assets/favicon.ico" />
+    <!-- Font Awesome icons (free version)-->
     {{if .cdn_mode}}
-        <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <!-- Custom fonts for this template -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css">
+        <script src="https://use.fontawesome.com/releases/v6.1.0/js/all.js" crossorigin="anonymous"></script>
     {{else}}
-        <!-- Bootstrap core CSS -->
-        <link href="{{.static}}/startbootstrap-grayscale-5.0.9/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <!-- Custom fonts for this template -->
-        <link href="{{.static}}/startbootstrap-grayscale-5.0.9/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+        <script src="{{.static}}/{{template "GRAYSCALE"}}/vendor/fontawesome-free-6.1.0-web/js/all.min.js"></script>
     {{end}}
-    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{{.static}}/{{template "GRAYSCALE"}}/css/styles.css" rel="stylesheet" />
 </head>
-
 <body id="page-top">
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
-        <div class="container">
-            <a class="navbar-brand js-scroll-trigger" href="#page-top">btnguyen2k/goadmin.g8</a>
-            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-                Menu
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarResponsive">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="#about">About</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="#credits">Credits</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link js-scroll-trigger" href="#contact">Contact</a>
-                    </li>
-                </ul>
-            </div>
+<!-- Navigation-->
+<nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+    <div class="container px-4 px-lg-5">
+        <a class="navbar-brand" href="#page-top">btnguyen2k/goadmin.g8</a>
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            Menu
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="#credits">Credits</a></li>
+                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <!-- Header -->
-    <header class="masthead">
-        <div class="container d-flex h-100 align-items-center">
-            <div class="mx-auto text-center">
+<!-- Masthead-->
+<header class="masthead">
+    <div class="container px-4 px-lg-5 d-flex h-100 align-items-center justify-content-center">
+        <div class="d-flex justify-content-center">
+            <div class="text-center">
                 <h1 class="mx-auto my-0 text-uppercase">{{.appInfo.GetString "shortname"}}</h1>
                 <h2 class="text-white-50 mx-auto mt-2 mb-5">{{.appInfo.GetString "desc"}}</h2>
-                <a href="{{call .reverse "cp_dashboard"}}" class="btn btn-primary js-scroll-trigger">Get Started</a>
+                <a class="btn btn-primary" href="{{call .reverse "cp_dashboard"}}">Get Started</a>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
-    <!-- About Section -->
-    <section id="about" class="about-section text-center">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <h2 class="text-white mb-4"><a href="https://github.com/btnguyen2k/goadmin.g8" target="_blank">btnguyen2k/goadmin.g8</a></h2>
-                    <p class="text-white-50">
-                        GoAdmin is an AdminCP Giter8 template written in Go.
-                        It can be used as starting point to build backend web-based application.
-                        GoAdmin is open source, you can use it for any purpose, either personal or commercial.
+<!-- About-->
+<section class="about-section text-center" id="about">
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5 justify-content-center">
+            <div class="col-lg-8">
+                <h2 class="text-white mb-4">btnguyen2k/goadmin.g8</h2>
+                <p class="text-white-50">
+                    <a href="https://github.com/btnguyen2k/goadmin.g8" target="_blank">GoAdmin</a> is an open-sourced
+                    template that can be used as starting point to build backend Control Panel for Go.
+                    The template is <a href="https://github.com/btnguyen2k/go-giter8" target="_blank">Giter8</a> format.
+                </p>
+            </div>
+        </div>
+        <img class="img-fluid" src="{{.static}}/{{template "GRAYSCALE"}}/assets/img/ipad.png" alt="..." />
+    </div>
+</section>
+
+<!-- Credits-->
+<section class="projects-section bg-light" id="credits">
+    <div class="container px-4 px-lg-5">
+        <!-- Featured Project Row-->
+        <div class="row gx-0 mb-4 mb-lg-5 align-items-center">
+            <div class="col-xl-8 col-lg-7">
+                <!-- <img class="img-fluid mb-3 mb-lg-0" src="assets/img/bg-masthead.jpg" alt="..." />-->
+                <img class="img-fluid" src="{{.static}}/img_echo.png" alt="Echo - High performance, extensible, minimalist Go web framework">
+            </div>
+            <div class="col-xl-4 col-lg-5">
+                <div class="featured-text text-center text-lg-left">
+                    <h4>GoAdmin</h4>
+                    <p class="text-black-50 mb-0">
+                        GoAdmin uses <a href="https://echo.labstack.com" target="_blank">Echo</a> - a high performance, extensible, minimalist Go web framework.
                     </p>
                 </div>
             </div>
-            <img src="{{.static}}/startbootstrap-grayscale-5.0.9/img/ipad.png" class="img-fluid" alt="">
         </div>
-    </section>
-
-    <!-- Credits Section -->
-    <section id="credits" class="projects-section bg-light">
-        <div class="container">
-            <!-- Featured Project Row -->
-            <div class="row align-items-center no-gutters mb-4 mb-lg-5">
-                <div class="col-xl-8 col-lg-7">
-                    <!--<img class="img-fluid mb-3 mb-lg-0" src="{{.static}}/startbootstrap-grayscale-5.0.9/img/bg-masthead.jpg" alt="Echo - High performance, extensible, minimalist Go web framework">-->
-                    <img class="img-fluid" src="{{.static}}/img_echo.png" alt="Echo - High performance, extensible, minimalist Go web framework">
-                </div>
-                <div class="col-xl-4 col-lg-5">
-                    <div class="featured-text text-center text-lg-left">
-                        <h4>GoAdmin</h4>
-                        <p class="text-black-50 mb-0">
-                            GoAdmin uses <a href="https://echo.labstack.com" target="_blank">Echo</a> - a high performance, extensible, minimalist Go web framework.
-                            You can use GoAdmin for any project - even commercial ones!
-                        </p>
-                    </div>
-                </div>
+        <!-- Project One Row-->
+        <div class="row gx-0 mb-5 mb-lg-0 justify-content-center">
+            <div class="col-lg-6">
+                <!-- <img class="img-fluid" src="assets/img/demo-image-01.jpg" alt="..." />-->
+                <img class="img-fluid" src="{{.static}}/img_GRAYSCALE.png" alt="GRAYSCALE - A free, multipurpose, one page Bootstrap theme featuring a dark color scheme and smooth scrolling animations.">
             </div>
-
-            <!-- Project One Row -->
-            <div class="row justify-content-center no-gutters mb-5 mb-lg-0">
-                <div class="col-lg-6">
-                    <!--<img class="img-fluid" src="{{.static}}/startbootstrap-grayscale-5.0.9/img/demo-image-01.jpg" alt="Greyscale - A free, responsive, one page Bootstrap theme created by Start Bootstrap">-->
-                    <img class="img-fluid" src="{{.static}}/img_greyscale.png" alt="Greyscale - A free, responsive, one page Bootstrap theme created by Start Bootstrap">
-                </div>
-                <div class="col-lg-6">
-                    <div class="bg-black text-center h-100 project">
-                        <div class="d-flex h-100">
-                            <div class="project-text w-100 my-auto text-center text-lg-left">
-                                <h4 class="text-white">Grayscale</h4>
-                                <p class="mb-0 text-white-50">
-                                    This landing page is customized from <a href="https://blackrockdigital.github.io/startbootstrap-grayscale/" target="_blank">Greyscale</a> - a free Bootstrap theme created by Start Bootstrap.
-                                </p>
-                                <hr class="d-none d-lg-block mb-0 ml-0">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Project Two Row -->
-            <div class="row justify-content-center no-gutters">
-                <div class="col-lg-6">
-                    <!--<img class="img-fluid" src="{{.static}}/startbootstrap-grayscale-5.0.9/img/demo-image-02.jpg" alt="AdminLTE Bootstrap Admin Dashboard Template">-->
-                    <img class="img-fluid" src="{{.static}}/img_adminlte.png" alt="AdminLTE Bootstrap Admin Dashboard Template">
-                </div>
-                <div class="col-lg-6 order-lg-first">
-                    <div class="bg-black text-center h-100 project">
-                        <div class="d-flex h-100">
-                            <div class="project-text w-100 my-auto text-center text-lg-right">
-                                <h4 class="text-white">AdminLTE</h4>
-                                <p class="mb-0 text-white-50">
-                                    The AdminCP uses <a href="https://adminlte.io" target="_blank">AdminLTE 3</a> - open source admin dashboard & control panel theme, built on top of Bootstrap.
-                                </p>
-                                <hr class="d-none d-lg-block mb-0 mr-0">
-                            </div>
+            <div class="col-lg-6">
+                <div class="bg-black text-center h-100 project">
+                    <div class="d-flex h-100">
+                        <div class="project-text w-100 my-auto text-center text-lg-left">
+                            <h4 class="text-white">Grayscale</h4>
+                            <p class="mb-0 text-white-50">
+                                This landing page is customized from <a href="https://github.com/StartBootstrap/startbootstrap-grayscale" target="_blank">GRAYSCALE</a>
+                                -
+                                a free, multipurpose, one page <a href="https://getbootstrap.com/" target="_blank">Bootstrap</a> theme featuring a dark color scheme and smooth scrolling animations.
+                            </p>
+                            <hr class="d-none d-lg-block mb-0 ms-0" />
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact-section bg-black">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <div class="card py-4 h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-map-marked-alt text-primary mb-2"></i>
-                            <h4 class="text-uppercase m-0">Address</h4>
-                            <hr class="my-4">
-                            <div class="small text-black-50"><a href="https://github.com/btnguyen2k/goadmin.g8" target="_blank">https://github.com/btnguyen2k/goadmin.g8</a></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <div class="card py-4 h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-envelope text-primary mb-2"></i>
-                            <h4 class="text-uppercase m-0">Email</h4>
-                            <hr class="my-4">
-                            <div class="small text-black-50">
-                                <a href="javascript:;">btnguyen2k (at) gmail.com</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-3 mb-md-0">
-                    <div class="card py-4 h-100">
-                        <div class="card-body text-center">
-                            <i class="fas fa-mobile-alt text-primary mb-2"></i>
-                            <h4 class="text-uppercase m-0">Phone</h4>
-                            <hr class="my-4">
-                            <div class="small text-black-50">+1 (234) 567-8900</div>
+        <!-- Project Two Row-->
+        <div class="row gx-0 justify-content-center">
+            <div class="col-lg-6">
+                <!-- <img class="img-fluid" src="assets/img/demo-image-02.jpg" alt="..." />-->
+                <img class="img-fluid" src="{{.static}}/img_adminlte.png" alt="AdminLTE Bootstrap Admin Dashboard Template">
+            </div>
+            <div class="col-lg-6 order-lg-first">
+                <div class="bg-black text-center h-100 project">
+                    <div class="d-flex h-100">
+                        <div class="project-text w-100 my-auto text-center text-lg-right">
+                            <h4 class="text-white">AdminLTE</h4>
+                            <p class="mb-0 text-white-50">
+                                The Admin Control Panel is based on <a href="https://adminlte.io" target="_blank">AdminLTE 3</a>
+                                -
+                                open source admin dashboard & control panel theme, built on top of <a href="https://getbootstrap.com/" target="_blank">Bootstrap</a>.
+                            </p>
+                            <hr class="d-none d-lg-block mb-0 me-0" />
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
 
-            <div class="social d-flex justify-content-center">
-                <a href="#" class="mx-2">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="#" class="mx-2">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" class="mx-2">
-                    <i class="fab fa-github"></i>
-                </a>
+<!-- Contact-->
+<section class="contact-section bg-black" id="contact">
+    <div class="container px-4 px-lg-5">
+        <div class="row gx-4 gx-lg-5">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="card py-4 h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-map-marked-alt text-primary mb-2"></i>
+                        <h4 class="text-uppercase m-0">Address</h4>
+                        <hr class="my-4 mx-auto" />
+                        <div class="small text-black-50">
+                            <a href="https://github.com/btnguyen2k/goadmin.g8" target="_blank">https://github.com/btnguyen2k/goadmin.g8</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="card py-4 h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-envelope text-primary mb-2"></i>
+                        <h4 class="text-uppercase m-0">Email</h4>
+                        <hr class="my-4 mx-auto" />
+                        <div class="small text-black-50">
+                            <a href="javascript:;">btnguyen2k (at) gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="card py-4 h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-mobile-alt text-primary mb-2"></i>
+                        <h4 class="text-uppercase m-0">Phone</h4>
+                        <hr class="my-4 mx-auto" />
+                        <div class="small text-black-50">+1 (234) 567-890</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-black small text-center text-white-50">
-        <div class="container">
-            Copyright &copy; Your Website 2019
+        <div class="social d-flex justify-content-center">
+            <a class="mx-2" href="#!"><i class="fab fa-twitter"></i></a>
+            <a class="mx-2" href="#!"><i class="fab fa-facebook-f"></i></a>
+            <a class="mx-2" href="#!"><i class="fab fa-github"></i></a>
         </div>
-    </footer>
-
-    {{if .cdn_mode}}
-        <!-- Bootstrap core JavaScript -->
-        <script src="https://code.jquery.com/jquery-3.3.1.min.js" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-        <!-- Plugin JavaScript -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
-    {{else}}
-        <!-- Bootstrap core JavaScript -->
-        <script src="{{.static}}/startbootstrap-grayscale-5.0.9/vendor/jquery/jquery.min.js"></script>
-        <script src="{{.static}}/startbootstrap-grayscale-5.0.9/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <!-- Plugin JavaScript -->
-        <script src="{{.static}}/startbootstrap-grayscale-5.0.9/vendor/jquery-easing/jquery.easing.min.js"></script>
-    {{end}}
-    <!-- Custom scripts for this template -->
-    <script src="{{.static}}/startbootstrap-grayscale-5.0.9/js/grayscale.min.js"></script>
+    </div>
+</section>
+<!-- Footer-->
+<footer class="footer bg-black small text-center text-white-50"><div class="container px-4 px-lg-5">Copyright &copy; Your Website 2022</div></footer>
+<!-- Bootstrap core JS-->
+{{if .cdn_mode}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+{{else}}
+    <script src="{{.static}}/{{template "GRAYSCALE"}}/vendor/bootstrap-5.1.3/js/bootstrap.bundle.min.js"></script>
+{{end}}
+<!-- Core theme JS-->
+<script src="{{.static}}/{{template "GRAYSCALE"}}/js/scripts.js"></script>
 </body>
 </html>
