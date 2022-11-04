@@ -9,6 +9,10 @@ vi:
   username      : "Tên đăng nhập"
   password      : "Mật mã"
 
+  error_signin_failed: "Đăng nhập thất bại: mật mà không đúng"
+
+  error_user_not_found: "Tài khoản '{{.user}}' không tồn tại"
+
   ## 0xx = other db errors
   #  001: general database error
   error_db_001: "Lỗi CSDL (001:{{.err}})"

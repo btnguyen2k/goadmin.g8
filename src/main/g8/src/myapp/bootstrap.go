@@ -329,7 +329,15 @@ func actionHome(c echo.Context) error {
 }
 
 func actionCpLogin(c echo.Context) error {
-	return c.Render(http.StatusOK, namespace+":login", nil)
+	data := map[string]interface{}{}
+	if utils.DevMode {
+		formData := url.Values{
+			"username": []string{systemUserUsername},
+			"password": []string{goadmin.AppConfig.GetString(namespace + ".init.admin_password")},
+		}
+		data["form"] = formData
+	}
+	return c.Render(http.StatusOK, namespace+":login", data)
 }
 
 func actionCpLoginSubmit(c echo.Context) error {
@@ -365,7 +373,7 @@ func actionCpLoginSubmit(c echo.Context) error {
 	password = formData.Get(formFieldPassword)
 	encPassword = encryptPassword(user.Username, password)
 	if encPassword != user.Password {
-		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_login_failed")
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_signin_failed")
 		goto end
 	}
 
@@ -373,6 +381,10 @@ func actionCpLoginSubmit(c echo.Context) error {
 	setSessionValue(c, sessionMyUid, user.Username)
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpDashboard))
 end:
+	if utils.DevMode {
+		formData.Set("username", systemUserUsername)
+		formData.Set("password", goadmin.AppConfig.GetString(namespace+".init.admin_password"))
+	}
 	return c.Render(http.StatusOK, namespace+":login", map[string]interface{}{
 		"form":  formData,
 		"error": errMsg,
