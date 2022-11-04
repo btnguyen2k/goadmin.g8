@@ -4,6 +4,7 @@
 
 Frontend:
 - `startbootstrap-grayscale v7.0.5`
+- `AdminLTE v3.2.0`
 
 ## 2020-02-06: template-v0.4.r2
 
