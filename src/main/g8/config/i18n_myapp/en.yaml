@@ -2,6 +2,13 @@
 en:
   _name: English
 
+  remember_login: "Remember Login"
+  signin        : "Sign In"
+  signin_msg    : "Sign in to start your session"
+  signout       : "Sign Out"
+  username      : "Username"
+  password      : "Password"
+
   ## 0xx = other db errors
   #  001: general database error
   error_db_001: "Database error (001:{{.err}})"

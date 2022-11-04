@@ -30,7 +30,6 @@ var (
 	Bootstrapper = &MyBootstrapper{name: "myapp"}
 
 	demoMode     = false
-	devMode      = false
 	cdnMode      = false
 	myStaticPath = "/static"
 	sqlc         *promsql.SqlConnect
@@ -83,7 +82,6 @@ const (
 func (b *MyBootstrapper) Bootstrap(conf *configuration.Config, e *echo.Echo) error {
 	cdnMode = conf.GetBoolean(namespace+".cdn_mode", cdnMode)
 	demoMode = conf.GetBoolean(namespace+".demo_mode", demoMode)
-	devMode = conf.GetBoolean(namespace+".dev_mode", devMode)
 	systemUserUsername = conf.GetString(namespace+".init.admin_username", systemUserUsername)
 	systemUserName = conf.GetString(namespace+".init.admin_name", systemUserName)
 
@@ -229,6 +227,10 @@ type myRenderer struct {
 // Render renders a template document.
 // - tplNames is list of template names, separated by colon (e.g. <template-name-1>[:<template-name-2>[:<template-name-3>...]])
 func (r *myRenderer) Render(w io.Writer, tplNames string, data interface{}, c echo.Context) error {
+	if utils.DevMode {
+		log.Printf("[DEBUG] %s renderer: rendering [%s]...", namespace, tplNames)
+	}
+
 	v := reflect.ValueOf(data)
 	if data == nil || v.IsNil() {
 		data = make(map[string]interface{})
@@ -243,6 +245,7 @@ func (r *myRenderer) Render(w io.Writer, tplNames string, data interface{}, c ec
 		viewContext["cdn_mode"] = cdnMode
 		viewContext["static"] = myStaticPath
 		viewContext["i18n"] = myI18n
+		viewContext["locale"] = getContextString(c, ctxLocale)
 		viewContext["reverse"] = c.Echo().Reverse
 		viewContext["appInfo"] = goadmin.AppConfig.GetConfig("app")
 		viewContext["appUtils"] = &MyAppUtils{c: c}
@@ -278,7 +281,7 @@ func (r *myRenderer) Render(w io.Writer, tplNames string, data interface{}, c ec
 			files = append(files, r.directory+"/"+v+r.templateFileSuffix)
 		}
 		tpl = template.Must(template.New(tplNames).ParseFiles(files...))
-		if !devMode {
+		if !utils.DevMode {
 			// DEV mode: disable template caching
 			r.templates[tplNames] = tpl
 		}

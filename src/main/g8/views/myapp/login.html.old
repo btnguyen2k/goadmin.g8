@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+{{define "ADMINLTE"}}adminlte-3.2.0{{end}}
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="{{.appInfo.GetString "shortname"}}">
+    <title>{{.appInfo.GetString "name"}} | {{.i18n.Text "login"}}</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="../../plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../../dist/css/adminlte.min.css">
+
+
+<!--    <meta charset="utf-8">-->
+<!--    <meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">-->
+<!--    <meta name="description" content="">-->
+<!--    <meta name="author" content="{{.appInfo.GetString "shortname"}}">-->
+
+<!--    <title>{{.appInfo.GetString "name"}} | {{.i18n.Text "login"}}</title>-->
+
+<!--    <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/dist/css/adminlte.min.css">-->
+<!--    {{if .cdn_mode}}-->
+<!--        &lt;!&ndash; Font Awesome &ndash;&gt;-->
+<!--        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">-->
+<!--        &lt;!&ndash; icheck bootstrap &ndash;&gt;-->
+<!--        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/icheck-bootstrap@3.0.1/icheck-bootstrap.min.css">-->
+<!--    {{else}}-->
+<!--        &lt;!&ndash; Font Awesome &ndash;&gt;-->
+<!--        <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/plugins/fontawesome-free/css/all.min.css">-->
+<!--        &lt;!&ndash; icheck bootstrap &ndash;&gt;-->
+<!--        <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/plugins/icheck-bootstrap/icheck-bootstrap.min.css">-->
+<!--    {{end}}-->
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">-->
+<!--    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">-->
+</head>
+<body class="hold-transition login-page">
+<!--<div class="login-box">-->
+<!--    <div class="login-logo">-->
+<!--        <a href="/"><b>{{.appInfo.GetString "shortname"}}</b></a>-->
+<!--    </div>-->
+<!--    <div class="card">-->
+<!--        <div class="card-body login-card-body">-->
+<!--            <p class="login-box-msg">{{.i18n.Text "signin_msg"}}</p>-->
+<!--            {{if .error}}-->
+<!--                <p class="alert alert-danger" role="alert">{{.error}}</p>-->
+<!--            {{end}}-->
+
+<!--            <form action="{{call .reverse "cp_login_submit"}}" method="post">-->
+<!--                <div class="input-group mb-3">-->
+<!--                    <input type="text" name="username" class="form-control" placeholder="{{.i18n.Text "username"}}"-->
+<!--                           value="{{.form.Get "username"}}">-->
+<!--                    <div class="input-group-append">-->
+<!--                        <div class="input-group-text">-->
+<!--                            <span class="fas fa-user"></span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="input-group mb-3">-->
+<!--                    <input type="password" name="password" class="form-control" placeholder="{{.i18n.Text "password"}}">-->
+<!--                    <div class="input-group-append">-->
+<!--                        <div class="input-group-text">-->
+<!--                            <span class="fas fa-lock"></span>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="row">-->
+<!--                    <div class="col-8">-->
+<!--                        <div class="icheck-primary">-->
+<!--                            <input type="checkbox" id="remember" name="remember">-->
+<!--                            <label for="remember">{{.i18n.Text "remember_login"}}</label>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-4">-->
+<!--                        <button type="submit" class="btn btn-primary btn-block">{{.i18n.Text "signin"}}</button>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </form>-->
+
+<!--            <div class="social-auth-links text-center mb-3">-->
+<!--                <p>- OR -</p>-->
+<!--                <a href="javascript:alert('not implemented')" class="btn btn-block btn-primary">-->
+<!--                    <i class="fab fa-facebook mr-2"></i> Sign in using Facebook-->
+<!--                </a>-->
+<!--                <a href="javascript:alert('not implemented')" class="btn btn-block btn-danger">-->
+<!--                    <i class="fab fa-google-plus mr-2"></i> Sign in using Google+-->
+<!--                </a>-->
+<!--            </div>-->
+
+<!--            <p class="mb-1">-->
+<!--                <a href="javascript:alert('not implemented')">I forgot my password</a>-->
+<!--            </p>-->
+<!--            <p class="mb-0">-->
+<!--                <a href="javascript:alert('not implemented')" class="text-center">Register a new membership</a>-->
+<!--            </p>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <p class="small">-->
+<!--        This is instance is for <em>demo purpose</em> only. Login with administrator account <strong>admin/s3cr3t</strong>. You can-->
+<!--        create/edit/delete other user group or user account. This special admin account, however, can not be modified or-->
+<!--        deleted.-->
+<!--    </p>-->
+<!--</div>-->
+
+
+<!--{{if .cdn_mode}}-->
+<!--&lt;!&ndash; jQuery &ndash;&gt;-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>-->
+<!--&lt;!&ndash; Bootstrap 4 &ndash;&gt;-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>-->
+<!--{{else}}-->
+<!--&lt;!&ndash; jQuery &ndash;&gt;-->
+<!--<script src="{{.static}}/adminlte-3.0.1/plugins/jquery/jquery.min.js"></script>-->
+<!--&lt;!&ndash; Bootstrap 4 &ndash;&gt;-->
+<!--<script src="{{.static}}/adminlte-3.0.1/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>-->
+<!--{{end}}-->
+<!--<script src="{{.static}}/adminlte-3.0.1/dist/js/adminlte.min.js"></script>-->
+
+</body>
+</html>

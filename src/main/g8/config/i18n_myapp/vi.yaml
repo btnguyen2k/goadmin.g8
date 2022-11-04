@@ -2,6 +2,13 @@
 vi:
   _name: Tiếng Việt
 
+  remember_login: "Lưu thông tin đăng nhập"
+  signin        : "Đăng nhập"
+  signin_msg    : "Đăng nhập để bắt đầu phiên làm việc"
+  signout       : "Đăng xuất"
+  username      : "Tên đăng nhập"
+  password      : "Mật mã"
+
   ## 0xx = other db errors
   #  001: general database error
   error_db_001: "Lỗi CSDL (001:{{.err}})"
