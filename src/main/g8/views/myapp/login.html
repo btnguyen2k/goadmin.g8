@@ -7,11 +7,12 @@
     <meta name="description" content="Giter8 template to build Admin Control Panel for Go" />
     <meta name="author" content="{{.appInfo.GetString "shortname"}}">
     <title>{{.i18n.Localize .locale "signin"}} | {{.appInfo.GetString "name"}}</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     {{if .cdn_mode}}
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/icheck-bootstrap@3.0.1/icheck-bootstrap.min.css">
     {{else}}
+        <link rel="stylesheet" href="{{.static}}/googlefonts/sourcesanspro/sourcesanspro.css">
         <link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/plugins/fontawesome-free/css/all.min.css">
         <link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     {{end}}

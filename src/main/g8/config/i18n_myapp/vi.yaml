@@ -9,8 +9,28 @@ vi:
   username      : "Tên đăng nhập"
   password      : "Mật mã"
 
-  error_signin_failed: "Đăng nhập thất bại: mật mà không đúng"
+  home      : "Trang nhà"
+  dashboard : "Trang chính"
+  my_account: "Tài khoản"
+  search    : "Tìm kiếm"
+  contact   : "Liên hệ"
 
+  actions: "Hành động"
+  edit   : "Chỉnh sửa"
+  delete : "Xoá"
+
+  groups      : "Nhóm người dùng"
+  create_group: "Tạo nhóm mới"
+  group_id    : "Id"
+  group_name  : "Tên"
+
+  users        : "Tài khoản"
+  create_user  : "Tạo tài khoản"
+  user_username: "Tên đăng nhập"
+  user_name    : "Tên hiển thị"
+  user_group   : "Nhóm"
+
+  error_signin_failed: "Đăng nhập thất bại: mật mã không đúng"
   error_user_not_found: "Tài khoản '{{.user}}' không tồn tại"
 
   ## 0xx = other db errors
