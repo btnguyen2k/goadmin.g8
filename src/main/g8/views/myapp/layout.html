@@ -186,7 +186,8 @@
             <!-- Sidebar user panel (optional) -->
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                 <div class="image">
-                    <img src="{{.static}}/{{template "ADMINLTE"}}/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                    <img class="img-circle elevation-2 myapp-img-current-user-profile" alt="User Profile Image">
+<!--                    <img src="{{.static}}/{{template "ADMINLTE"}}/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">-->
                 </div>
                 <div class="info">
                     <a href="{{call .reverse "cp_profile"}}" class="d-block" {{if eq .active "profile"}}style="font-weight: bold"{{end}}>{{.currentUser.Name}}<!--'.currentUser' must not be nil--></a>
@@ -267,6 +268,17 @@
 <script src="{{.static}}/{{template "ADMINLTE"}}/dist/js/adminlte.js"></script>
 <!--<script src="{{.static}}/{{template "ADMINLTE"}}/dist/js/demo.js"></script>-->
 <!--<script src="{{.static}}/{{template "ADMINLTE"}}/dist/js/pages/dashboard.js"></script>-->
+
+<script src="{{.static}}/blueimp-md5-2.2/js/md5.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        let imgSrc = "https://www.gravatar.com/avatar/" + md5("{{.currentUser.Username}}")
+        let objects = $(".myapp-img-current-user-profile")
+        for (let obj of objects) {
+            obj.src = imgSrc+"?s=512"
+        }
+    });
+</script>
 
 <!-- Page level plugin CSS-->
 {{template "page_js" .}}

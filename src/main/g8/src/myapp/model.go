@@ -65,12 +65,12 @@ func (m *UserModel) IsSystemUser() bool {
 
 func (m *UserModel) CanDelete() bool {
 	// cannot delete system-user
-	return m.Username != systemUserName
+	return m.Username != systemUserUsername
 }
 
 func (m *UserModel) CanEdit() bool {
 	// cannot edit system-user
-	return m.Username != systemUserName
+	return m.Username != systemUserUsername
 }
 
 func (m *UserModel) UrlDelete() string {

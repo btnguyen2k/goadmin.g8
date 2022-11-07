@@ -19,6 +19,8 @@ vi:
   edit   : "Chỉnh sửa"
   delete : "Xoá"
 
+  profile: "Hồ sơ"
+
   groups      : "Nhóm người dùng"
   create_group: "Tạo nhóm mới"
   group_id    : "Id"
@@ -29,6 +31,14 @@ vi:
   user_username: "Tên đăng nhập"
   user_name    : "Tên hiển thị"
   user_group   : "Nhóm"
+  user_password: "Mật mã"
+
+  change_password           : "Thay đổi mật mã"
+  change_password_successful: "Mật mã đã được cập nhật thành công"
+  change_password_msg       : "Đổi mật mã: nhập mật mã cũ để xác thực và mật mã mới để đổi"
+  current_password          : "Mật mã hiện tại"
+  new_password              : "Mật mã mới"
+  confirmed_new_password    : "Xác nhận mật mã mới"
 
   error_signin_failed: "Đăng nhập thất bại: mật mã không đúng"
   error_user_not_found: "Tài khoản '{{.user}}' không tồn tại"

@@ -19,6 +19,8 @@ en:
   edit   : "Edit"
   delete : "Delete"
 
+  profile: "Profile"
+
   groups      : "Groups"
   create_group: "Create new group"
   group_id    : "Id"
@@ -29,6 +31,14 @@ en:
   user_username: "Username"
   user_name    : "Name"
   user_group   : "Group"
+  user_password: "Password"
+
+  change_password           : "Change password"
+  change_password_successful: "Password has been updated successfully"
+  change_password_msg       : "To change password: confirm current one and enter new password to change"
+  current_password          : "Current password"
+  new_password              : "New password"
+  confirmed_new_password    : "Confirmed new password"
 
   error_signin_failed: "Sign-in failed: password does not match"
   error_user_not_found: "User '{{.user}}' does not exist"
