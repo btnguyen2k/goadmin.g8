@@ -18,13 +18,22 @@ vi:
   actions: "Hành động"
   edit   : "Chỉnh sửa"
   delete : "Xoá"
+  save   : "Lưu"
+  reset  : "Hoàn tác"
+  cancel : "Huỷ bỏ"
 
   profile: "Hồ sơ"
 
   groups      : "Nhóm người dùng"
   create_group: "Tạo nhóm mới"
-  group_id    : "Id"
+  edit_group  : "Cập nhật thông tin nhóm"
+  group_id    : "Định danh"
   group_name  : "Tên"
+  create_group_successful: "Đã tạo thành công nhóm người dùng '{{.group}}'"
+  update_group_successful: "Nhóm người dùng '{{.group}}' đã được cập nhật thành công"
+  error_empty_group_id   : "Định danh của group không được để trống"
+  error_group_existed    : "Nhóm người dùng '{{.group}}' đã tồn tại"
+  error_group_not_found  : "Nhóm người dùng '{{.group}}' không tồn tại"
 
   users        : "Tài khoản"
   create_user  : "Tạo tài khoản"

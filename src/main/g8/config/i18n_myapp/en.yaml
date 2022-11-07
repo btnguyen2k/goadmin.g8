@@ -18,13 +18,22 @@ en:
   actions: "Actions"
   edit   : "Edit"
   delete : "Delete"
+  save   : "Save"
+  reset  : "Reset"
+  cancel : "Cancel"
 
   profile: "Profile"
 
   groups      : "Groups"
   create_group: "Create new group"
+  edit_group  : "Edit group"
   group_id    : "Id"
   group_name  : "Name"
+  create_group_successful: "Group '{{.group}}' has been created successfully"
+  update_group_successful: "Group '{{.group}}' has been updated successfully"
+  error_empty_group_id   : "Group id must not be empty"
+  error_group_existed    : "Group '{{.group}}' has already existed"
+  error_group_not_found  : "Group '{{.group}}' does not exist"
 
   users        : "Users"
   create_user  : "Create new user"

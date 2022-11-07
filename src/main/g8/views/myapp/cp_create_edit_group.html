@@ -1,20 +1,21 @@
-{{define "title"}}{{if .editMode}}{{.i18n.Text "edit_group"}}{{else}}{{.i18n.Text "create_group"}}{{end}}{{end}}
+{{define "title"}}{{if .editMode}}{{.i18n.Localize .locale "edit_group"}}{{else}}{{.i18n.Localize .locale "create_group"}}{{end}}{{end}}
 {{define "page_css"}}<!--this page has no custom CSS-->{{end}}
 {{define "page_js"}}<!--this page has no custom JS-->{{end}}
 {{define "page_content"}}
+    <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <!--heading-->
-                    <h1 class="m-0 text-dark">{{if .editMode}}{{.i18n.Text "edit_group"}}{{else}}{{.i18n.Text "create_group"}}{{end}}</h1>
+                    <h1 class="m-0">{{if .editMode}}{{.i18n.Localize .locale "edit_group"}}{{else}}{{.i18n.Localize .locale "create_group"}}{{end}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <!--breadcrumb-->
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_dashboard"}}">{{.i18n.Text "home"}}</a></li>
-                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_groups"}}">{{.i18n.Text "groups"}}</a></li>
-                        <li class="breadcrumb-item active">{{if .editMode}}{{.i18n.Text "edit_group"}}{{else}}{{.i18n.Text "create_group"}}{{end}}</li>
+                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_dashboard"}}">{{.i18n.Localize .locale "home"}}</a></li>
+                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_groups"}}">{{.i18n.Localize .locale "groups"}}</a></li>
+                        <li class="breadcrumb-item active">{{if .editMode}}{{.i18n.Localize .locale "edit_group"}}{{else}}{{.i18n.Localize .locale "create_group"}}{{end}}</li>
                     </ol>
                 </div>
             </div>
@@ -35,29 +36,29 @@
                         {{end}}
                         <div class="form-group">
                             <div class="form-label-group">
-                                <label for="id">{{.i18n.Text "group_id"}}:</label>
-                                <input type="text" id="id" name="id" class="form-control" placeholder="{{.i18n.Text "group_id"}}" value="{{.form.Get "id"}}" {{if .editMode}}readonly="readonly"{{end}}/>
+                                <label for="id">{{.i18n.Localize .locale "group_id"}}:</label>
+                                <input type="text" id="id" name="id" class="form-control" placeholder="{{.i18n.Localize .locale "group_id"}}" value="{{.form.Get "id"}}" {{if .editMode}}readonly="readonly"{{end}}/>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="form-label-group">
-                                <label for="name">{{.i18n.Text "group_name"}}:</label>
-                                <input type="text" id="name" name="name" class="form-control" placeholder="{{.i18n.Text "group_name"}}" value="{{.form.Get "name"}}"/>
+                                <label for="name">{{.i18n.Localize .locale "group_name"}}:</label>
+                                <input type="text" id="name" name="name" class="form-control" placeholder="{{.i18n.Localize .locale "group_name"}}" value="{{.form.Get "name"}}"/>
                             </div>
                         </div>
                     </div>
                     <div class="card-footer bg-white small text-muted">
-                        <button type="submit" class="btn btn-primary btn-icon-split btn-sm">
+                        <button type="submit" class="btn btn-primary btn-icon-split btn-sm" style="margin-right: 4px">
                             <span class="icon"><i class="fas fa-save"></i></span>
-                            <span class="text" style="width: 96px">{{.i18n.Text "save"}}</span>
+                            <span class="text" style="width: 96px">{{.i18n.Localize .locale "save"}}</span>
                         </button>
-                        <button type="reset" class="btn btn-warning btn-icon-split btn-sm">
+                        <button type="reset" class="btn btn-warning btn-icon-split btn-sm" style="margin-right: 4px">
                             <span class="icon"><i class="fas fa-undo"></i></span>
-                            <span class="text" style="width: 96px">{{.i18n.Text "reset"}}</span>
+                            <span class="text" style="width: 96px">{{.i18n.Localize .locale "reset"}}</span>
                         </button>
                         <a href="{{call .reverse "cp_groups"}}" class="btn btn-default btn-icon-split btn-sm">
                             <span class="icon"><i class="fas fa-times"></i></span>
-                            <span class="text" style="width: 96px">{{.i18n.Text "cancel"}}</span>
+                            <span class="text" style="width: 96px">{{.i18n.Localize .locale "cancel"}}</span>
                         </a>
                     </div>
                 </div>
