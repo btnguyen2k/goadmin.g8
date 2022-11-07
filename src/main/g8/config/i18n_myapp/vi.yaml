@@ -40,6 +40,8 @@ vi:
   new_password              : "Mật mã mới"
   confirmed_new_password    : "Xác nhận mật mã mới"
 
+  error_change_password_system_user_demo: "Phiên bản demo: không cho phép thay đổi mật mã của tài khoản quản trị viên hệ thống"
+
   error_signin_failed: "Đăng nhập thất bại: mật mã không đúng"
   error_user_not_found: "Tài khoản '{{.user}}' không tồn tại"
 

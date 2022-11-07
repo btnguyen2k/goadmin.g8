@@ -431,7 +431,7 @@ func actionCpChangePasswordSubmit(c echo.Context) error {
 
 	// FIXME this is for demo purpose only
 	if demoMode && currentUser.Username == systemUserUsername {
-		errMsg = "Cannot change system admin account's password"
+		errMsg = myI18n.Localize(getContextString(c, ctxLocale), "error_change_password_system_user_demo")
 		goto end
 	}
 

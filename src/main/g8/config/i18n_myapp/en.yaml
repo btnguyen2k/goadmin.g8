@@ -40,6 +40,8 @@ en:
   new_password              : "New password"
   confirmed_new_password    : "Confirmed new password"
 
+  error_change_password_system_user_demo: "Demo mode: cannot change password of system admin account"
+
   error_signin_failed: "Sign-in failed: password does not match"
   error_user_not_found: "User '{{.user}}' does not exist"
 
