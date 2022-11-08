@@ -26,10 +26,13 @@ en:
 
   groups      : "Groups"
   create_group: "Create new group"
+  delete_group: "Delete group"
   edit_group  : "Edit group"
   group_id    : "Id"
   group_name  : "Name"
   create_group_successful: "Group '{{.group}}' has been created successfully"
+  delete_group_confirm   : "Are you sure you wish to delete group '{{.group}}'?"
+  delete_group_successful: "Group '{{.group}}' has been removed successfully"
   update_group_successful: "Group '{{.group}}' has been updated successfully"
   error_empty_group_id   : "Group id must not be empty"
   error_group_existed    : "Group '{{.group}}' has already existed"
@@ -49,6 +52,8 @@ en:
   new_password              : "New password"
   confirmed_new_password    : "Confirmed new password"
 
+  error_no_permission: "You have no permission to perform this action"
+  error_delete_system_group: "System group cannot be deleted"
   error_change_password_system_user_demo: "Demo mode: cannot change password of system admin account"
 
   error_signin_failed: "Sign-in failed: password does not match"

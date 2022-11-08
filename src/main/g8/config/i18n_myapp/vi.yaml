@@ -26,10 +26,13 @@ vi:
 
   groups      : "Nhóm người dùng"
   create_group: "Tạo nhóm mới"
+  delete_group: "Xoá nhóm người dùng"
   edit_group  : "Cập nhật thông tin nhóm"
   group_id    : "Định danh"
   group_name  : "Tên"
   create_group_successful: "Đã tạo thành công nhóm người dùng '{{.group}}'"
+  delete_group_confirm   : "Bạn có chắc chắn muốn xoá nhóm người dùng '{{.group}}'?"
+  delete_group_successful: "Nhóm người dùng '{{.group}}' đã được xoá khỏi hệ thống"
   update_group_successful: "Nhóm người dùng '{{.group}}' đã được cập nhật thành công"
   error_empty_group_id   : "Định danh của group không được để trống"
   error_group_existed    : "Nhóm người dùng '{{.group}}' đã tồn tại"
@@ -49,6 +52,8 @@ vi:
   new_password              : "Mật mã mới"
   confirmed_new_password    : "Xác nhận mật mã mới"
 
+  error_no_permission: "Bạn không được cấp quyền để thực hiện thao tác này"
+  error_delete_system_group: "Không thể xoá nhóm người dùng hệ thống"
   error_change_password_system_user_demo: "Phiên bản demo: không cho phép thay đổi mật mã của tài khoản quản trị viên hệ thống"
 
   error_signin_failed: "Đăng nhập thất bại: mật mã không đúng"
