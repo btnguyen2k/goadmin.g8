@@ -160,4 +160,4 @@ jobs:
         cd $GITHUB_WORKSPACE/../temp && ls -l
     - name: Build Docker image
       run: |
-        cd $GITHUB_WORKSPACE/../temp/go_echo-admincp-seed && docker build -t test .
+        cd $GITHUB_WORKSPACE/../temp/goadmincp-seed && docker build -t test .
