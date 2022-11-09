@@ -3,6 +3,7 @@ name: myapp
 on:
   push:
     branches: [ '*' ]
+    branches-ignore: [ 'azure-pipelines' ]
   pull_request:
     branches: [ master ]
 
