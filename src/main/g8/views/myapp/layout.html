@@ -1,63 +1,85 @@
+{{define "ADMINLTE"}}adminlte-3.2.0{{end}}
 {{define "layout.html"}}<!--"master" template, its name is prefixed with ".html"-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="{{.appInfo.GetString "shortname"}}">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Giter8 template to build Admin Control Panel for Go" />
+<meta name="author" content="{{.appInfo.GetString "shortname"}}">
+<title>{{template "title" .}} | {{.appInfo.GetString "name"}}</title>
+{{if .cdn_mode}}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.css">-->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote.min.css">-->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tempusdominus-bootstrap-4@5.39.0/build/css/tempusdominus-bootstrap-4.min.css">-->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/icheck-bootstrap@3.0.1/icheck-bootstrap.min.css">-->
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jqvmap@1.5.1/dist/jqvmap.min.css">-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@1.13.0/css/OverlayScrollbars.min.css">
+{{else}}
+    <link rel="stylesheet" href="{{.static}}/googlefonts/sourcesanspro/sourcesanspro.css">
+    <link rel="stylesheet" href="{{.static}}/ionicons-2.0.1/css/ionicons.min.css">
+    <link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/plugins/fontawesome-free/css/all.min.css">
+<!--    <link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/plugins/daterangepicker/daterangepicker.css">-->
+<!--    <link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/plugins/summernote/summernote-bs4.min.css">-->
+<!--    <link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">-->
+<!--    <link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/plugins/icheck-bootstrap/icheck-bootstrap.min.css">-->
+<!--    <link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/plugins/jqvmap/jqvmap.min.css">-->
+    <link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+{{end}}
+<link rel="stylesheet" href="{{.static}}/{{template "ADMINLTE"}}/dist/css/adminlte.min.css">
 
-    <title>{{template "title" .}} | {{.appInfo.GetString "name"}}</title>
-
-    <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/dist/css/adminlte.min.css">
-    {{if .cdn_mode}}
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
-        <!-- overlayScrollbars -->
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.10.0/css/OverlayScrollbars.min.css">
-    {{else}}
-        <!-- Font Awesome -->
-        <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/plugins/fontawesome-free/css/all.min.css">
-        <!-- overlayScrollbars -->
-        <link rel="stylesheet" href="{{.static}}/adminlte-3.0.1/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-    {{end}}
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-
-    <!-- Page level plugin CSS-->
-    {{template "page_css" .}}
+<!-- Page level plugin CSS-->
+{{template "page_css" .}}
 </head>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+<body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
-    <!-- TOP BAR -->
+    <!-- Preloader -->
+    <div class="preloader flex-column justify-content-center align-items-center">
+        <img class="animation__shake" src="{{.static}}/{{template "ADMINLTE"}}/dist/img/AdminLTELogo.png" alt="AdminLTELogo" height="60" width="60">
+    </div>
+
+    <!-- Navbar -->
     <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-        <!-- Top-left navbar -->
+        <!-- Left navbar links -->
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="{{call .reverse "cp_dashboard"}}" class="nav-link">{{.i18n.Text "home"}}</a>
+                <a href="{{call .reverse "cp_dashboard"}}" class="nav-link">{{.i18n.Localize .locale "home"}}</a>
             </li>
             <li class="nav-item d-none d-sm-inline-block">
-                <a href="javascript:alert('not implemented')" class="nav-link">{{.i18n.Text "contact"}}</a>
+                <a href="javascript:alert('not implemented')" class="nav-link">{{.i18n.Localize .locale "contact"}}</a>
             </li>
         </ul>
 
-        <!-- Search form on top -->
-        <form class="form-inline ml-3" onsubmit="javascript:alert('not implemented')">
-            <div class="input-group input-group-sm">
-                <input class="form-control form-control-navbar" type="search" placeholder="{{.i18n.Text "search"}}" aria-label="{{.i18n.Text "search"}}">
-                <div class="input-group-append">
-                    <button class="btn btn-navbar" type="submit">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-        </form>
-
-        <!-- Top-right navbar -->
+        <!-- Right navbar links -->
         <ul class="navbar-nav ml-auto">
+            <!-- Navbar Search -->
+            <li class="nav-item">
+                <a class="nav-link" data-widget="navbar-search" href="#" role="button">
+                    <i class="fas fa-search"></i>
+                </a>
+                <div class="navbar-search-block">
+                    <form class="form-inline">
+                        <div class="input-group input-group-sm" onsubmit="javascript:alert('not implemented')">
+                            <input class="form-control form-control-navbar" type="search" placeholder="{{.i18n.Localize .locale "search"}}" aria-label="{{.i18n.Localize .locale "search"}}">
+                            <div class="input-group-append">
+                                <button class="btn btn-navbar" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                <button class="btn btn-navbar" type="button" data-widget="navbar-search">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </li>
+
             <!-- Messages Dropdown Menu -->
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
@@ -67,7 +89,7 @@
                 <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                     <a href="#" class="dropdown-item">
                         <div class="media">
-                            <img src="{{.static}}/adminlte-3.0.1/dist/img/user1-128x128.jpg" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                            <img src="{{.static}}/{{template "ADMINLTE"}}/dist/img/user1-128x128.jpg" alt="User Avatar" class="img-size-50 mr-3 img-circle">
                             <div class="media-body">
                                 <h3 class="dropdown-item-title">
                                     Brad Diesel
@@ -81,7 +103,7 @@
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
                         <div class="media">
-                            <img src="{{.static}}/adminlte-3.0.1/dist/img/user8-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
+                            <img src="{{.static}}/{{template "ADMINLTE"}}/dist/img/user8-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
                             <div class="media-body">
                                 <h3 class="dropdown-item-title">
                                     John Pierce
@@ -95,7 +117,7 @@
                     <div class="dropdown-divider"></div>
                     <a href="#" class="dropdown-item">
                         <div class="media">
-                            <img src="{{.static}}/adminlte-3.0.1/dist/img/user3-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
+                            <img src="{{.static}}/{{template "ADMINLTE"}}/dist/img/user3-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
                             <div class="media-body">
                                 <h3 class="dropdown-item-title">
                                     Nora Silvester
@@ -111,7 +133,7 @@
                 </div>
             </li>
 
-            <!-- Alerts Dropdown Menu -->
+            <!-- Notifications Dropdown Menu -->
             <li class="nav-item dropdown">
                 <a class="nav-link" data-toggle="dropdown" href="#">
                     <i class="far fa-bell"></i>
@@ -138,53 +160,74 @@
                     <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
                 </div>
             </li>
-            <!--
             <li class="nav-item">
-                <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#"><i class="fas fa-th-large"></i></a>
+                <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                </a>
             </li>
-            -->
+            <li class="nav-item">
+                <a class="nav-link" data-widget="control-sidebar" data-controlsidebar-slide="true" href="#" role="button">
+                    <i class="fas fa-th-large"></i>
+                </a>
+            </li>
         </ul>
     </nav>
 
-    <!-- MAIN LEFT SIDEBAR -->
+    <!-- Main Sidebar Container -->
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <!-- Brand Logo -->
         <a href="{{call .reverse "cp_dashboard"}}" class="brand-link">
-            <img src="{{.static}}/adminlte-3.0.1/dist/img/AdminLTELogo.png" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+            <img src="{{.static}}/{{template "ADMINLTE"}}/dist/img/AdminLTELogo.png" alt="Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
             <span class="brand-text font-weight-light">{{.appInfo.GetString "shortname"}}</span>
         </a>
 
         <!-- Sidebar -->
         <div class="sidebar">
+            <!-- Sidebar user panel (optional) -->
             <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                 <div class="image">
-                    <img src="{{.static}}/adminlte-3.0.1/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                    <img class="img-circle elevation-2 myapp-img-current-user-profile" alt="User Profile Image">
+<!--                    <img src="{{.static}}/{{template "ADMINLTE"}}/dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">-->
                 </div>
                 <div class="info">
                     <a href="{{call .reverse "cp_profile"}}" class="d-block" {{if eq .active "profile"}}style="font-weight: bold"{{end}}>{{.currentUser.Name}}<!--'.currentUser' must not be nil--></a>
                 </div>
             </div>
 
+            <!-- SidebarSearch Form -->
+            <div class="form-inline">
+                <div class="input-group" data-widget="sidebar-search">
+                    <input class="form-control form-control-sidebar" type="search" placeholder="{{.i18n.Localize .locale "search"}}" aria-label="{{.i18n.Localize .locale "search"}}">
+                    <div class="input-group-append">
+                        <button class="btn btn-sidebar">
+                            <i class="fas fa-search fa-fw"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Menu -->
             <nav class="mt-2">
                 <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <!-- Add icons to the links using the .nav-icon class with font-awesome or any other icon font library -->
                     <li class="nav-item">
                         <a href="{{call .reverse "cp_users"}}" class="nav-link {{if eq .active "users"}}active{{end}}">
-                            <i class="nav-icon fas fa-user-alt"></i>
-                            <p>{{.i18n.Text "users"}}<span class="badge badge-info right">{{.appUtils.NumUsers}}</span></p>
+                        <i class="nav-icon fas fa-user-alt"></i>
+                        <p>{{.i18n.Localize .locale "users"}}<span class="badge badge-info right">{{.appUtils.NumUsers}}</span></p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="{{call .reverse "cp_groups"}}" class="nav-link {{if eq .active "groups"}}active{{end}}">
-                            <i class="nav-icon fas fa-users"></i>
-                            <p>{{.i18n.Text "groups"}}<span class="badge badge-warning right">{{.appUtils.NumUserGroups}}</span></p>
+                        <i class="nav-icon fas fa-users"></i>
+                        <p>{{.i18n.Localize .locale "groups"}}<span class="badge badge-warning right">{{.appUtils.NumUserGroups}}</span></p>
                         </a>
                     </li>
 
-                    <li class="nav-header">{{.i18n.Text "signout"}}</li>
-
+                    <li class="nav-header">{{.i18n.Localize .locale "my_account"}}</li>
                     <li class="nav-item">
                         <a href="{{call .reverse "cp_logout"}}" class="nav-link">
-                            <i class="nav-icon fas fa-user-lock"></i>
-                            <p>{{.i18n.Text "signout"}}</p>
+                        <i class="nav-icon fas fa-user-lock"></i>
+                        <p>{{.i18n.Localize .locale "signout"}}</p>
                         </a>
                     </li>
                 </ul>
@@ -197,34 +240,45 @@
         {{template "page_content" .}}
     </div>
 
-    <!--
-    <aside class="control-sidebar control-sidebar-dark">
-    </aside>
-    -->
-
     <footer class="main-footer">
-        <strong>Copyright &copy; 2019 <a href="https://github.com/btnguyen2k/goadmin.g8">{{.appInfo.GetString "name"}} v{{.appInfo.GetString "version"}}</a>.</strong> All rights reserved.
+        <strong>Copyright &copy; 2022 <a href="https://github.com/btnguyen2k/goadmin.g8">{{.appInfo.GetString "name"}} v{{.appInfo.GetString "version"}}</a>.</strong> All rights reserved.
         <div class="float-right d-none d-sm-inline-block">Template by <a href="https://adminlte.io/"><b>AdminLTE 3</b></a></div>
     </footer>
-</div>
-<!-- ./wrapper -->
 
-{{if .cdn_mode}}
-    <!-- jQuery -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
-    <!-- overlayScrollbars -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.10.0/js/jquery.overlayScrollbars.min.js"></script>
-{{else}}
-    <!-- jQuery -->
-    <script src="{{.static}}/adminlte-3.0.1/plugins/jquery/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="{{.static}}/adminlte-3.0.1/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- overlayScrollbars -->
-    <script src="{{.static}}/adminlte-3.0.1/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-{{end}}
-<script src="{{.static}}/adminlte-3.0.1/dist/js/adminlte.min.js"></script>
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+    </aside>
+</div>
+
+<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/jquery/jquery.min.js"></script>
+<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script>$.widget.bridge('uibutton', $.ui.button)</script><!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/chart.js/Chart.min.js"></script>-->
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/sparklines/sparkline.js"></script>-->
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/jqvmap/jquery.vmap.min.js"></script>-->
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>-->
+<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/jquery-knob/jquery.knob.min.js"></script>
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/moment/moment.min.js"></script>-->
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/daterangepicker/daterangepicker.js"></script>-->
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>-->
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/summernote/summernote-bs4.min.js"></script>-->
+<script src="{{.static}}/{{template "ADMINLTE"}}/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<script src="{{.static}}/{{template "ADMINLTE"}}/dist/js/adminlte.js"></script>
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/dist/js/demo.js"></script>-->
+<!--<script src="{{.static}}/{{template "ADMINLTE"}}/dist/js/pages/dashboard.js"></script>-->
+
+<script src="{{.static}}/blueimp-md5-2.2/js/md5.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        let imgSrc = "https://www.gravatar.com/avatar/" + md5("{{.currentUser.Username}}")
+        let objects = $(".myapp-img-current-user-profile")
+        for (let obj of objects) {
+            obj.src = imgSrc+"?s=512"
+        }
+    });
+</script>
 
 <!-- Page level plugin CSS-->
 {{template "page_js" .}}

@@ -3,10 +3,12 @@ package goadmin
 import (
 	"encoding/json"
 	"io"
+	"log"
 	"reflect"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"main/src/utils"
 )
 
 var (
@@ -46,6 +48,9 @@ type GoadminRenderer struct {
 func (r *GoadminRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	namespaceAndTplname := strings.SplitN(name, ":", 2)
 	if renderer, ok := r.renderers[namespaceAndTplname[0]]; ok {
+		if utils.DevMode {
+			log.Printf("[DEBUG] rendering [%s]...", name)
+		}
 		return renderer.Render(w, namespaceAndTplname[1], data, c)
 	}
 	return r.defaultRenderer.Render(w, name, data, c)
@@ -56,6 +61,9 @@ type jsonRenderer struct {
 
 // Render implements Renderer.Render
 func (r *jsonRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	if utils.DevMode {
+		log.Printf("[DEBUG] default renderer has been invoked for [%s]", name)
+	}
 	c.Response().Header().Set(echo.HeaderContentType, "application/json")
 	v := reflect.ValueOf(data)
 	if data == nil || v.IsNil() {

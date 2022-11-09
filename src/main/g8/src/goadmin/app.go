@@ -32,7 +32,7 @@ func Start(bootstrappers ...IBootstrapper) {
 	var err error
 
 	AppConfig = initAppConfig()
-
+	utils.DevMode = AppConfig.GetBoolean("dev_mode", utils.DevMode)
 	if utils.Location, err = time.LoadLocation(AppConfig.GetString("timezone")); err != nil {
 		panic(err)
 	}

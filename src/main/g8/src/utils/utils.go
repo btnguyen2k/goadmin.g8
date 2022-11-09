@@ -21,6 +21,8 @@ import (
 var (
 	// Location should be initialized during application bootstrap
 	Location *time.Location
+
+	DevMode = false
 )
 
 func getMacAddr() string {

@@ -1,19 +1,20 @@
-{{define "title"}}{{.i18n.Text "profile"}}{{end}}
+{{define "title"}}{{.i18n.Localize .locale "profile"}}{{end}}
 {{define "page_css"}}<!--this page has no custom CSS-->{{end}}
 {{define "page_js"}}<!--this page has no custom JS-->{{end}}
 {{define "page_content"}}
+    <!-- Content Header (Page header) -->
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <!--heading-->
-                    <h1 class="m-0 text-dark">{{.i18n.Text "profile"}}</h1>
+                    <h1 class="m-0">{{.i18n.Localize .locale "profile"}}</h1>
                 </div>
                 <div class="col-sm-6">
                     <!--breadcrumb-->
                     <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_dashboard"}}">{{.i18n.Text "home"}}</a></li>
-                        <li class="breadcrumb-item active">{{.i18n.Text "profile"}}</li>
+                        <li class="breadcrumb-item"><a href="{{call .reverse "cp_dashboard"}}">{{.i18n.Localize .locale "home"}}</a></li>
+                        <li class="breadcrumb-item active">{{.i18n.Localize .locale "profile"}}</li>
                     </ol>
                 </div>
             </div>
@@ -47,62 +48,56 @@
                     <div class="card card-primary card-outline">
                         <div class="card-body box-profile">
                             <div class="text-center">
-                                <img class="profile-user-img img-fluid img-circle" src="{{.static}}/adminlte-3.0.1/dist/img/user2-160x160.jpg" alt="User profile picture">
+                                <img class="profile-user-img img-fluid img-circle myapp-img-current-user-profile" alt="User profile picture">
                             </div>
                             <h3 class="profile-username text-center">{{.currentUser.Name}}</h3>
                             <p class="text-muted text-center">{{.currentUser.Username}}</p>
                             <ul class="list-group list-group-unbordered mb-3">
                                 <li class="list-group-item">
-                                    <b>{{.i18n.Text "user_username"}}</b> <a class="float-right">{{.currentUser.Username}}</a>
+                                    <b>{{.i18n.Localize .locale "user_username"}}</b> <a class="float-right">{{.currentUser.Username}}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>{{.i18n.Text "user_name"}}</b> <a class="float-right">{{.currentUser.Name}}</a>
+                                    <b>{{.i18n.Localize .locale "user_name"}}</b> <a class="float-right">{{.currentUser.Name}}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>{{.i18n.Text "user_group"}}</b> <a class="float-right">{{.currentUser.GroupId}}</a>
+                                    <b>{{.i18n.Localize .locale "user_group"}}</b> <a class="float-right">{{.currentUser.GroupId}}</a>
                                 </li>
                             </ul>
-                            <a href="{{.currentUser.UrlEdit}}" class="btn btn-primary btn-block"><b>{{.i18n.Text "edit"}}</b></a>
+                            <a href="{{.currentUser.UrlEdit}}" class="btn btn-primary btn-block"><b>{{.i18n.Localize .locale "edit"}}</b></a>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-9">
                     <div class="card card-warning">
                         <div class="card-header">
-                            <h3 class="card-title" style="font-weight: bold">{{.i18n.Text "user_password"}}</h3>
+                            <h3 class="card-title" style="font-weight: bold">{{.i18n.Localize .locale "user_password"}}</h3>
                         </div>
-                        <form method="post" action="{{call .reverse "cp_change_password"}}" class="form-horizontal">
+                        <form method="post" action="{{call .reverse "cp_change_password"}}">
                             <div class="card-body">
-                                <p class="alert alert-light" role="alert">{{.i18n.Text "change_password_msg"}}</p>
+                                <p class="alert alert-light" role="alert">{{.i18n.Localize .locale "change_password_msg"}}</p>
                                 {{if .error}}
                                     <p class="alert alert-danger alert-dismissible" role="alert">
                                         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
                                         {{.error}}
                                     </p>
                                 {{end}}
-                                <div class="form-group row">
-                                    <label for="currentPassword" class="col-sm-2 col-form-label">{{.i18n.Text "current_password"}}:</label>
-                                    <div class="col-sm-10">
-                                        <input type="password" id="currentPassword" name="currentPassword" class="form-control" placeholder="{{.i18n.Text "current_password"}}"/>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="currentPassword">{{.i18n.Localize .locale "current_password"}}</label>
+                                    <input type="password" id="currentPassword" name="currentPassword" class="form-control" placeholder="{{.i18n.Localize .locale "current_password"}}"/>
                                 </div>
-                                <div class="form-group row">
-                                    <label for="password" class="col-sm-2 col-form-label">{{.i18n.Text "new_password"}}:</label>
-                                    <div class="col-sm-10">
-                                        <input type="password" id="password" name="password" class="form-control" placeholder="{{.i18n.Text "new_password"}}"/>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="password">{{.i18n.Localize .locale "new_password"}}:</label>
+                                    <input type="password" id="password" name="password" class="form-control" placeholder="{{.i18n.Localize .locale "new_password"}}"/>
                                 </div>
-                                <div class="form-group row">
-                                    <label for="password2" class="col-sm-2 col-form-label">{{.i18n.Text "confirmed_new_password"}}:</label>
-                                    <div class="col-sm-10">
-                                        <input type="password" id="password2" name="password2" class="form-control" placeholder="{{.i18n.Text "confirmed_new_password"}}"/>
-                                    </div>
+                                <div class="form-group">
+                                    <label for="password2">{{.i18n.Localize .locale "confirmed_new_password"}}:</label>
+                                    <input type="password" id="password2" name="password2" class="form-control" placeholder="{{.i18n.Localize .locale "confirmed_new_password"}}"/>
                                 </div>
                             </div>
                             <div class="card-footer bg-white small text-muted">
                                 <button type="submit" class="btn btn-danger btn-icon-split btn-sm">
                                     <span class="icon"><i class="fas fa-lock"></i></span>
-                                    <span class="text" style="width: 96px">{{.i18n.Text "change_password"}}</span>
+                                    <span class="text" style="width: 96px">{{.i18n.Localize .locale "change_password"}}</span>
                                 </button>
                             </div>
                         </form>

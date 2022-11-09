@@ -81,6 +81,8 @@ en-us {
         confirmed_new_password     = "Confirmed password"
         error_password_not_matched = "Current password does not match"
 
+        error_change_password_system_user_demo:
+
         error_user_not_found  = "User [%s] does not exist"
         error_group_not_found = "Group [%s] does not exist"
     }

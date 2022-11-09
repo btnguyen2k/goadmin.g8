@@ -2,6 +2,74 @@
 en:
   _name: English
 
+  remember_login: "Remember Login"
+  signin        : "Sign In"
+  signin_msg    : "Sign in to start your session"
+  signout       : "Sign Out"
+  username      : "Username"
+  password      : "Password"
+
+  home      : "Home"
+  dashboard : "Dashboard"
+  my_account: "My account"
+  search    : "Search"
+  contact   : "Contact"
+
+  actions: "Actions"
+  edit   : "Edit"
+  delete : "Delete"
+  save   : "Save"
+  reset  : "Reset"
+  cancel : "Cancel"
+
+  profile: "Profile"
+
+  groups      : "Groups"
+  create_group: "Create new group"
+  delete_group: "Delete group"
+  edit_group  : "Edit group"
+  group_id    : "Id"
+  group_name  : "Name"
+  create_group_successful: "Group '{{.group}}' has been created successfully"
+  delete_group_confirm   : "Are you sure you wish to delete group '{{.group}}'?"
+  delete_group_successful: "Group '{{.group}}' has been removed successfully"
+  update_group_successful: "Group '{{.group}}' has been updated successfully"
+  error_empty_group_id   : "Group id must not be empty"
+  error_group_existed    : "Group '{{.group}}' has already existed"
+  error_group_not_found  : "Group '{{.group}}' does not exist"
+
+  users        : "Users"
+  create_user  : "Create new user"
+  delete_user  : "Delete user"
+  edit_user    : "Edit user"
+  user_username: "Username"
+  user_name    : "Name"
+  user_group   : "Group"
+  user_password: "Password"
+  user_confirmed_password: "Confirmed password"
+  create_user_successful    : "User account '{{.user}}' has been created successfully"
+  delete_user_confirm       : "Are you sure you wish to delete user account '{{.user}}'?"
+  delete_user_successful    : "User account '{{.user}}' has been removed successfully"
+  update_user_successful    : "User account '{{.user}}' has been updated successfully"
+  error_empty_user_username : "User id must not be empty"
+  error_user_existed        : "User '{{.user}}' has already existed"
+  error_empty_user_password : "Password must not be empty"
+  error_mismatched_passwords: "Password does not match the confirmed one"
+
+  change_password           : "Change password"
+  change_password_successful: "Password has been updated successfully"
+  change_password_msg       : "To change password: confirm current one and enter new password to change"
+  current_password          : "Current password"
+  new_password              : "New password"
+  confirmed_new_password    : "Confirmed new password"
+
+  error_no_permission: "You have no permission to perform this action"
+  error_delete_system_group: "System group cannot be deleted"
+  error_change_password_system_user_demo: "Demo mode: cannot change password of system admin account"
+
+  error_signin_failed: "Sign-in failed: password does not match"
+  error_user_not_found: "User '{{.user}}' does not exist"
+
   ## 0xx = other db errors
   #  001: general database error
   error_db_001: "Database error (001:{{.err}})"
