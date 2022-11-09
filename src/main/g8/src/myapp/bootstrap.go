@@ -989,7 +989,7 @@ func actionCpDeleteUserSubmit(c echo.Context) error {
 		goto end
 	}
 	addFlashMsg(c, myI18n.Localize(getContextString(c, ctxLocale), "delete_user_successful", &goyai.LocalizeConfig{
-		TemplateData: map[string]interface{}{"error": user.Username},
+		TemplateData: map[string]interface{}{"user": user.Username},
 	}))
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpUsers)+"?r="+utils.RandomString(4))
 end:
