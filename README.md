@@ -1,8 +1,10 @@
 # goadmin.g8
 
-Giter8 template to develop `Admin Control Panel` in Go using Echo framework.
+[![Actions Status](https://github.com/btnguyen2k/goadmin.g8/workflows/myapp/badge.svg)](https://github.com/btnguyen2k/goadmin.g8/actions)
+[![codecov](https://codecov.io/gh/btnguyen2k/goadmin.g8/branch/master/graph/badge.svg?token=HVAP5A0R2Z)](https://codecov.io/gh/btnguyen2k/goadmin.g8)
+[![Release](https://img.shields.io/github/release/btnguyen2k/goadmin.g8.svg?style=flat-square)](RELEASE-NOTES.md)
 
-Latest release: [template-v0.4.r2](RELEASE-NOTES.md).
+Giter8 template to develop `Admin Control Panel` in Go using Echo framework.
 
 Demo: https://demo-goadmin.herokuapp.com/.
 
