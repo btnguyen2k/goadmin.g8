@@ -6,7 +6,7 @@
 
 Giter8 template to develop `Admin Control Panel` in Go using Echo framework.
 
-Demo: https://demo-goadmin.herokuapp.com/.
+Demo: https://demo-goadmin.gpvcloud.com/.
 
 ## Features
 
