@@ -1,0 +1,148 @@
+name: myapp
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  testWithMongoStandalone:
+    name: Test with MongoDB (Standalone)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go env
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.17"
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Start MongoDB Standalone server
+      run: docker run -d --name mongodb -e MONGO_INITDB_ROOT_USERNAME=test -e MONGO_INITDB_ROOT_PASSWORD=test -e MONGO_INITDB_DATABASE=test -p 27017:27017 mongo:4.2
+    - name: Test
+      run: |
+        export TIMEZONE="Asia/Ho_Chi_Minh"
+        export MONGO_DB="test"
+        export MONGO_URL="mongodb://test:test@localhost:27017/?authSource=admin"
+        go test -v -count 1 -p 1 -cover -coverprofile=coverage_mongo_standalone.txt ./src/myapp/
+    - name: Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        flags: myapp_mongo_standalone
+        name: myapp_mongo_standalone
+
+  testWithMongoReplicaSet:
+    name: Test with MongoDB (ReplicaSet)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go env
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.17"
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Start MongoDB Standalone server
+      run: docker run -d --name mongodb-replset -e MONGODB_REPLICA_SET_MODE=primary -e MONGODB_REPLICA_SET_KEY=myreplset -e MONGODB_ADVERTISED_HOSTNAME=localhost -e MONGODB_PRIMARY_PORT_NUMBER=27017 -e MONGODB_ROOT_PASSWORD=test -e MONGODB_DATABASE=test -p 27017:27017 bitnami/mongodb:4.2
+    - name: Test
+      run: |
+        export TIMEZONE="Asia/Ho_Chi_Minh"
+        export MONGO_DB="test"
+        export MONGO_URL="mongodb://root:test@localhost:27017/?authSource=admin&replicaSet=replicaset"
+        go test -v -count 1 -p 1 -cover -coverprofile=coverage_mongo_replicaset.txt ./src/myapp/
+    - name: Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        flags: myapp_mongo_replicaset
+        name: myapp_mongo_replicaset
+
+  testWithMySQL:
+    name: Test with MySQL
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go env
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.17"
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Start MySQL server
+      run: docker run -d --name mysql -e MYSQL_ROOT_PASSWORD=test -e MYSQL_DATABASE=test -e MYSQL_USER=test -e MYSQL_PASSWORD=test -p 3306:3306 mysql:8
+    - name: Test (parseTime=false)
+      run: |
+        export TIMEZONE="Asia/Ho_Chi_Minh"
+        export MYSQL_DRIVER="mysql"
+        export MYSQL_URL="test:test@tcp(localhost:3306)/test?charset=utf8mb4,utf8&parseTime=false&loc=\${loc}"
+        go test -v -count 1 -p 1 -cover -coverprofile=coverage_mysql.txt ./src/myapp/
+    - name: Test (parseTime=true)
+      run: |
+        export TIMEZONE="Asia/Ho_Chi_Minh"
+        export MYSQL_DRIVER="mysql"
+        export MYSQL_URL="test:test@tcp(localhost:3306)/test?charset=utf8mb4,utf8&parseTime=true&loc=\${loc}"
+        go test -v -count 1 -p 1 -cover -coverprofile=coverage_mysql_parsetime.txt ./src/myapp/
+    - name: Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        flags: myapp_mysql
+        name: myapp_mysql
+
+  testWithPostgreSQL:
+    name: Test with PostgreSQL
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go env
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.17"
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Start PostgreSQL server
+      run: docker run -d --name postgres -e POSTGRES_DB=test -e POSTGRES_USER=test -e POSTGRES_PASSWORD=test -p 5432:5432 postgres:11
+    - name: Test
+      run: |
+        export TIMEZONE="Asia/Ho_Chi_Minh"
+        export PGSQL_DRIVER="pgx"
+        export PGSQL_URL="postgres://test:test@localhost:5432/test?sslmode=disable&client_encoding=UTF-8&application_name=godal"
+        go test -v -count 1 -p 1 -cover -coverprofile=coverage_pgsql.txt ./src/myapp/
+    - name: Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        flags: myapp_pgsql
+        name: myapp_pgsql
+
+  testWithSqlite:
+    name: Test with SQLite
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go env
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.17"
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Test
+      run: |
+        export TIMEZONE="Asia/Ho_Chi_Minh"
+        mkdir -p ./temp
+        export SQLITE_DRIVER="sqlite3"
+        export SQLITE_URL="$(pwd)/temp/temp.db"
+        ls -l
+        go test -v -count 1 -p 1 -cover -coverprofile=coverage_sqlite.txt ./src/myapp/
+    - name: Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        flags: myapp_sqlite
+        name: myapp_sqlite
+
+  testDockerBuild:
+    name: Test Docker build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go env
+      uses: actions/setup-go@v2
+      with:
+        go-version: "1.17"
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Build Docker image
+      run: |
+        docker build -t test .

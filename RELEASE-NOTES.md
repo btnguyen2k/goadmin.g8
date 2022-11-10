@@ -1,10 +1,14 @@
 # goadmin.g8 Release Notes
 
-## 2022-11-xx: template-r3
+## 2022-11-10: template-r3
 
-Frontend:
-- `startbootstrap-grayscale v7.0.5`
-- `AdminLTE v3.2.0`
+- Frontend:
+  - `startbootstrap-grayscale v7.0.5`
+  - `AdminLTE v3.2.0`
+- Backend:
+  - BO & DAO implementation for MySQL, PostgreSQL and MongoDB
+- Others:
+  - Sample GitHub action workflow
 
 ## 2020-02-06: template-v0.4.r2
 

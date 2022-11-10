@@ -1,4 +1,4 @@
-name: myapp
+name: goadmin
 
 on:
   push:

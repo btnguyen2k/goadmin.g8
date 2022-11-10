@@ -4,22 +4,23 @@
 [![codecov](https://codecov.io/gh/btnguyen2k/goadmin.g8/branch/master/graph/badge.svg?token=HVAP5A0R2Z)](https://codecov.io/gh/btnguyen2k/goadmin.g8)
 [![Release](https://img.shields.io/github/release/btnguyen2k/goadmin.g8.svg?style=flat-square)](RELEASE-NOTES.md)
 
-Giter8 template to develop `Admin Control Panel` in Go using Echo framework.
+Giter8 template to build `Admin Control Panel` for Go.
 
 Demo: https://demo-goadmin.gpvcloud.com/.
 
 ## Features
 
-- Create new project from template with [go-giter8](https://github.com/btnguyen2k/go-giter8).
+- [Giter8](https://github.com/btnguyen2k/go-giter8) template.
 - Built on [Echo framework v4](https://echo.labstack.com).
-- `Landing page` using [Greyscale template](https://startbootstrap.com/themes/grayscale/).
+- `Landing page` using [Greyscale template](https://startbootstrap.com/theme/grayscale).
 - `Admin Control Panel` using [AdminLTE v3 - Bootstrap Admin Dashboard Template](https://adminlte.io):
-  - Login page & Logout
+  - User signin & signout
   - Dashboard
   - Profile page & Change password
   - User & User group management (list, create, update, delete)
-  - BO & DAO implementation using [SQLite3](https://github.com/mattn/go-sqlite3)
-- Sample `.gitlab-ci.yaml` & `Dockerfile` to package application as Docker image.
+  - BO & DAO implementation in SQLite3, MySQL, PostgreSQL and MongoDB
+- Sample `Dockerfile` to package application as Docker image.
+- Sample [GitHub Actions](https://docs.github.com/actions) workflow.
 
 
 ## Getting Started
@@ -27,14 +28,14 @@ Demo: https://demo-goadmin.gpvcloud.com/.
 ### Install `go-giter8`
 
 This a Giter8 template, so it is meant to be used in conjunction with a giter8 tool.
-Since this is a template for Go application, it make sense to use [go-giter8](https://github.com/btnguyen2k/go-giter8).
+Since this is a template for Go application, it makes sense to use [go-giter8](https://github.com/btnguyen2k/go-giter8).
 
 See [go-giter8](https://github.com/btnguyen2k/go-giter8) website for installation guide.
 
 ### Create new project from template
 
 ```
-g8 new btnguyen2k/goadmin.g8
+$ g8 new btnguyen2k/goadmin.g8
 ```
 
 and follow the instructions.
@@ -46,7 +47,7 @@ and follow the instructions.
 Directory `src/goadmin` is reserved for `GoAdmin` framework, do _not_ put application source code there.
 
 Source code under directory `src/myapp` is the sample `Admin Control Panel` itself.
-It is a good starting point, so feel free to reference or modify to build your own application.
+It is a good starting point, feel free to reference or modify to build your own application.
 
 
 ## LICENSE & COPYRIGHT
