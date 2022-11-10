@@ -330,7 +330,7 @@ func actionHome(c echo.Context) error {
 
 func actionCpLogin(c echo.Context) error {
 	data := map[string]interface{}{}
-	if utils.DevMode {
+	if demoMode {
 		formData := url.Values{
 			"username": []string{systemUserUsername},
 			"password": []string{goadmin.AppConfig.GetString(namespace + ".init.admin_password")},
@@ -381,7 +381,7 @@ func actionCpLoginSubmit(c echo.Context) error {
 	setSessionValue(c, sessionMyUid, user.Username)
 	return c.Redirect(http.StatusFound, c.Echo().Reverse(actionNameCpDashboard))
 end:
-	if utils.DevMode {
+	if demoMode {
 		formData.Set("username", systemUserUsername)
 		formData.Set("password", goadmin.AppConfig.GetString(namespace+".init.admin_password"))
 	}
