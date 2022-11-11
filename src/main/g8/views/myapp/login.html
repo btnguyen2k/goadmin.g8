@@ -47,14 +47,30 @@
                             </div>
                         </div>
                     </div>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text"><span class="fas fa-language"></span></div>
+                        </div>
+                        <script type="text/javascript">
+                            function changeLanguage() {
+                                const locale = $("#selectLocale").val()
+                                window.location.href = "{{call .reverse "cp_login"}}?_l=" + locale
+                            }
+                        </script>
+                        <select id="selectLocale" name="locale" class="custom-select form-control" onchange="javascript:changeLanguage()">
+                            {{range .i18n.AvailableLocales}}
+                                <option value="{{.Id}}" {{if eq .Id $.locale}}selected="selected"{{end}}>{{.DisplayName}}</option>
+                            {{end}}
+                        </select>
+                    </div>
                     <div class="row">
-                        <div class="col-8">
+                        <div class="col-7">
                             <div class="icheck-primary">
                                 <input type="checkbox" id="remember">
                                 <label for="remember">{{.i18n.Localize .locale "remember_login"}}</label>
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-5">
                             <button type="submit" class="btn btn-primary btn-block">{{.i18n.Localize .locale "signin"}}</button>
                         </div>
                     </div>

@@ -2,7 +2,7 @@
 vi:
   _name: Tiếng Việt
 
-  remember_login: "Lưu thông tin đăng nhập"
+  remember_login: "Ghi nhớ"
   signin        : "Đăng nhập"
   signin_msg    : "Đăng nhập để bắt đầu phiên làm việc"
   signout       : "Đăng xuất"

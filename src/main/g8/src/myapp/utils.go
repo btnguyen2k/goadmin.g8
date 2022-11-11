@@ -5,10 +5,12 @@ import (
 	"encoding/hex"
 	"log"
 	"math"
+	"net/http"
 	"runtime"
 	"strings"
 
 	"github.com/btnguyen2k/consu/reddo"
+	"github.com/btnguyen2k/goyai"
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -30,6 +32,15 @@ const (
 	flashPrefixWarning = "_W_:"
 	flashPrefixError   = "_E_:"
 )
+
+func isValidLocale(localeId string, i18n goyai.I18n) bool {
+	for _, localeInfo := range i18n.AvailableLocales() {
+		if localeId == localeInfo.Id {
+			return true
+		}
+	}
+	return false
+}
 
 func getSession(c echo.Context) *sessions.Session {
 	sess, _ := session.Get(namespace, c)
@@ -68,6 +79,10 @@ func getCurrentUser(c echo.Context) (*User, error) {
 		}
 	}
 	return nil, nil
+}
+
+func setCookie(c echo.Context, cookieName, cookieValue string) {
+	c.SetCookie(&http.Cookie{Name: cookieName, Value: cookieValue})
 }
 
 // available since template-r3
