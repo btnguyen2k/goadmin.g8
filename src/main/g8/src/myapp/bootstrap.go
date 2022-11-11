@@ -296,6 +296,11 @@ func (r *myRenderer) Render(w io.Writer, tplNames string, data interface{}, c ec
 func middlewarePopulateLocale(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		c.Set(ctxLocale, getCookieString(c, cookieLocale))
+		locale := c.QueryParam("_l")
+		if isValidLocale(locale, myI18n) {
+			c.Set(ctxLocale, locale)
+			setCookie(c, cookieLocale, locale)
+		}
 		return next(c)
 	}
 }

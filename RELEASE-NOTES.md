@@ -1,5 +1,9 @@
 # goadmin.g8 Release Notes
 
+## 2022-11-xx: template-r4
+
+- i18n support.
+
 ## 2022-11-10: template-r3
 
 - Frontend:
