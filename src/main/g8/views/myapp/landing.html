@@ -46,6 +46,7 @@
             <div class="text-center">
                 <h1 class="mx-auto my-0 text-uppercase">{{.appInfo.GetString "shortname"}}</h1>
                 <h2 class="text-white-50 mx-auto mt-2 mb-5">{{.appInfo.GetString "desc"}}</h2>
+                <h6 class="text-white-50 mx-auto mt-2 mb-5">Version {{.appInfo.GetString "version"}}</h6>
                 <a class="btn btn-primary" href="{{call .reverse "cp_dashboard"}}">Get Started</a>
             </div>
         </div>
