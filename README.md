@@ -19,6 +19,7 @@ Demo: https://demo-goadmin.gpvcloud.com/.
   - Profile page & Change password
   - User & User group management (list, create, update, delete)
   - BO & DAO implementation in SQLite3, MySQL, PostgreSQL and MongoDB
+  - Unit tests for BO & DAO
 - I18n support.
 - Sample `Dockerfile` to package application as Docker image.
 - Sample [GitHub Actions](https://docs.github.com/actions) workflow.
