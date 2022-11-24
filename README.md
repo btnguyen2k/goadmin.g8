@@ -8,6 +8,8 @@ Giter8 template to build `Admin Control Panel` for Go.
 
 Demo: https://demo-goadmin.gpvcloud.com/.
 
+See also: [govueadmin.g8](https://github.com/btnguyen2k/govueadmin.g8) - single-page VueJS-based `Admin Control Panel` application template for Go.
+
 ## Features
 
 - [Giter8](https://github.com/btnguyen2k/go-giter8) template.
